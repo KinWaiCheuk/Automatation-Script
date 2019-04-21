@@ -1,5 +1,4 @@
 [General]
-MacroID=5c9b0209-e9b6-40e5-ad3f-5fa67a483dcb
 SyntaxVersion=2
 BeginHotkey=121
 BeginHotkeyMod=0
@@ -9,6 +8,7 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
+MacroID=5c9b0209-e9b6-40e5-ad3f-5fa67a483dcb
 Description=EatinBar
 Enable=1
 AutoRun=0
@@ -56,13 +56,6 @@ DY4 = MyArray4(1)
 TracePrint DX
 TracePrint DY
 
-Call FindBarEntrance(DX, DY, hwnd)
-Delay 1500
-Call FindBarOwner(DX, DY, hwnd)
-Delay 500
-
-Call WalktoBarExit(hwnd)
-Call FindBarExit(DX,DY,hwnd)
 
 Sub WalktoBarExit(hwnd)
 	BringWinOnTop(hwnd)
@@ -262,4 +255,31 @@ Sub FindBarExit(DX,DY,hwnd)
 	Rem Found
 	KeyPress 13, 1// Open the door
 	Delay 1000
+End Sub
+
+Sub EatinBar
+	BringWinOnTop(hwnd)
+	OpenMap
+	Call Move_Click(DX, DY, 608, 115)
+	
+	Delay 21000
+	
+	Call FindBarEntrance(DX, DY, hwnd)
+	Delay 1500
+	
+	Call FindBarOwner(DX, DY, hwnd)
+	Delay 500
+	Call ChooseFood(DX, DY, hwnd)
+	
+	Call FindBarOwner(DX2,DY2,hwnd2)
+	Call ChooseFood(DX2, DY2, hwnd2)
+	
+	Call FindBarOwner(DX3,DY3,hwnd3)
+	Call ChooseFood(DX3, DY3, hwnd3)
+	
+	Call FindBarOwner(DX4,DY4,hwnd4)
+	Call ChooseFood(DX4, DY4, hwnd4)
+	
+	Call WalktoBarExit(hwnd)
+	Call FindBarExit(DX,DY,hwnd)	
 End Sub
