@@ -13,8 +13,8 @@ Description=Trading_Bot
 Enable=1
 AutoRun=0
 [Repeat]
-Type=0
-Number=1
+Type=2
+Number=86460
 [SetupUI]
 Type=2
 QUI=
@@ -24,17 +24,18 @@ SetupOCXFile=
 
 [Script]
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = Plugin.Window.Find("Afx:00400000:b:00010003:00000006:00240439", "athrun200 - ÉñÂ}Œ§º½")
-hwnd1 = 197874
-hwnd2 = 134180
-hwnd3 = 68702
-hwnd4 = 68714
+hwnd0 = 198984
+hwnd1 = 133474
+hwnd2 = 67990
+hwnd3 = 461116
+hwnd4 = 68006
 
 sick_state = 2
 mouse_state = 8
 fire_state = 16
 //Call Plugin.Window.Move(hwnd1, 100, 100)
 VBS state_add=&H0111FEA4
+MP_add = &H0111FF48
 
 s1 = Plugin.Window.GetClientRect(hwnd1)
 s2 = Plugin.Window.GetClientRect(hwnd2)
@@ -56,17 +57,43 @@ DY3 = MyArray3(1)
 
 DX4 = MyArray4(0)
 DY4 = MyArray4(1)
+//---------------------------  Beginning
 
+
+cond = Check_Arrival(DX1, DY1)
+TracePrint cond(0)
+TracePrint cond(1)
+TracePrint cond(2)
+counter = 0
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+	Autoheal 
+	cond = Check_Arrival(DX1, DY1)
+	TracePrint cond(0)
+	TracePrint cond(1)
+	TracePrint cond(2)
+	If counter = 500 Then 
+		Call Refresh_Nav
+		Call BringWinOnTop(hwnd1)
+	End If
+	counter = counter+1
+Wend
 
 Call EnterPortA
+Call UPDATE_PLAYER_MP_STATE(hwnd1, MP_add)
+If Player1_mp_value < 200 Then 
+	EatinBar
+End If
+Delay 5000
 Call LeavingA
 Delay 3000
+
+
 // Supplying Food and Water
 Call Supply(DX1, DY1,hwnd1) 
 Call Supply(DX2, DY2, hwnd2)
 Call Supply(DX3, DY3, hwnd3)
 Call Supply(DX4, DY4, hwnd4)
-
+Delay 900
 
 // Player 1 sail out
 Call SailOut
@@ -87,28 +114,28 @@ TracePrint cond(2)
 
 counter = 0
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-	Call BringWinOnTop(hwnd1)
 	Autoheal 
 	cond = Check_Arrival(DX1, DY1)
 	TracePrint cond(0)
 	TracePrint cond(1)
 	TracePrint cond(2)
 	If counter = 500 Then 
-		Call Refresh_Nav	
+		Call Refresh_Nav
+		Call BringWinOnTop(hwnd1)	
 	End If
 	counter = counter+1
 Wend
 
 Call EnterPortB
+// Add MP check here
 Call LeavingB
 Delay 3000
-
-
 
 Call Supply(DX1,DY1,hwnd1) 
 Call Supply(DX2, DY2, hwnd2)
 Call Supply(DX3, DY3, hwnd3)
 Call Supply(DX4, DY4, hwnd4)
+Delay 900
 
 // Player 1 sail out
 Call SailOut
@@ -120,28 +147,12 @@ Call Plugin.Bkgnd.KeyPress(hwnd1, 121)//Press F10
 Delay 1800
 Call Plugin.Bkgnd.KeyPress(hwnd1, 113)//Press F3
 Call StartNavi
-
-
-cond = Check_Arrival(DX1, DY1)
-TracePrint cond(0)
-TracePrint cond(1)
-TracePrint cond(2)
-counter = 0
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-	Call BringWinOnTop(hwnd1)
-	Autoheal 
-	cond = Check_Arrival(DX1, DY1)
-	TracePrint cond(0)
-	TracePrint cond(1)
-	TracePrint cond(2)
-	If counter = 500 Then 
-		Call Refresh_Nav	
-	End If
-	counter = counter+1
-Wend
+// -------------------End of  Prog
+// -------------------Functions------
 
 Sub EnterPortA
-	BringWinOnTop(hwnd1)
+	BringWinOnTop (hwnd1)
+	Delay 1500
 	Call Move_Click(DX1,DY1,641,385) //Click Enter
 	Delay 1900
 	For 10
@@ -153,12 +164,14 @@ Sub EnterPortA
 	Next
 	
 	Rem Loaded_City
+	Delay 2000
 	Call OpenMap
 	Delay 800
 	Call Move_Click(DX1, DY1, 590, 190)
 	Delay 12000// Need to walk for a very long distance
 
 	Call TradingA(DX1, DY1, hwnd1)
+	Delay 2000
 	RightClick 2
 	Delay 800
 	KeyDown "Up", 1
@@ -170,7 +183,8 @@ Sub EnterPortA
 End Sub
 
 Sub EnterPortB
-	BringWinOnTop(hwnd1)
+	BringWinOnTop (hwnd1)
+	Delay 1500
 	Call Move_Click(DX1,DY1,641,385) //Click Enter
 	Delay 1900
 	For 10
@@ -182,12 +196,14 @@ Sub EnterPortB
 	Next
 	
 	Rem Loaded_City
+	Delay 2000
 	Call OpenMap
 	Delay 800
 	Call Move_Click(DX1, DY1, 579, 215) //Click the Trading point for City B
 	Delay 12000// Need to walk for a very long distance
 	
 	Call TradingB(DX1, DY1, hwnd1)
+	Delay 2000
 	RightClick 2
 	Delay 800
 	KeyDown "Up", 1
@@ -313,11 +329,11 @@ Sub SellItemsA(DX,DY,hwnd)
 	Delay 800
 	
 	Call Move_Click(DX, DY, 286, 89)// Sell all
-	Delay 300
+	Delay 800
 	
 	
 	Call Move_Click(DX, DY, 456, 341)// Bargain
-	Delay 500
+	Delay 800
 	
 	Call Move_Click(DX, DY, 647, 423)// Confirm
 End Sub
@@ -424,9 +440,11 @@ Sub Supply(DX,DY, hwnd)
 End Sub
 
 Sub SailOut
+	Call BringWinOnTop(hwnd1)
 	Call Move_Click(DX1, DY1, 640, 360)
-	Delay 600
-	Call Move_Click(DX1,DY1, 549, 398)
+	Delay 1000
+	Call Move_Click(DX1, DY1, 549, 398)
+	Delay 500
 End Sub
 // --------------End of Food Drink Supply --------------
 
@@ -488,11 +506,11 @@ Sub SellItemsB(DX,DY,hwnd)
 	Delay 1000
 	
 	Call Move_Click(DX, DY, 286, 89)// Sell all
-	Delay 300
+	Delay 800
 	
 	
 	Call Move_Click(DX, DY, 456, 341)// Bargain
-	Delay 500
+	Delay 800
 	
 	Call Move_Click(DX, DY, 647, 423)// Confirm
 End Sub
@@ -598,8 +616,223 @@ Sub Refresh_Nav
 End Sub
 
 Sub UPDATE_PLAYER_STATE
-	Player1_state_value = Int(Plugin.Memory.Read8Bit(Hwnd1, state_add))
-	Player2_state_value = Int(Plugin.Memory.Read8Bit(Hwnd2, state_add))
-	Player3_state_value = Int(Plugin.Memory.Read8Bit(Hwnd3, state_add))
-	Player4_state_value = Int(Plugin.Memory.Read8Bit(Hwnd4, state_add))
+	Player1_state_value = Int(Plugin.Memory.Read8Bit(hwnd1, state_add))
+	Player2_state_value = Int(Plugin.Memory.Read8Bit(hwnd2, state_add))
+	Player3_state_value = Int(Plugin.Memory.Read8Bit(hwnd3, state_add))
+	Player4_state_value = Int(Plugin.Memory.Read8Bit(hwnd4, state_add))
+End Sub
+
+Sub WalktoBarExit(hwnd)
+	BringWinOnTop(hwnd)
+	KeyDown "Down", 1
+	Delay 3000
+	KeyUp "Down", 1
+End Sub
+
+
+
+Sub FindBarEntrance(DX,DY,hwnd)
+	For 3 // This loop is for rotating 90deg for 3 times
+    	Call BringWinOnTop(hwnd)
+    	Delay 10
+    	For 195
+        	KeyPress 9,1
+        	Delay 200
+        	IfColor DX + 636, DY + 330, "ffffff", 0 Then
+        		TracePrint "Cond1 Pass"
+            	IfColor DX + 667, DY + 329, "ffffff", 0 Then
+            		TracePrint "Cond2 Pass"
+                	IfColor DX + 683, DY + 330, "ffffff", 0 Then
+                		TracePrint "Cond3 Pass"
+                    	IfColor DX + 689, DY + 341, "ffffff", 0 Then
+                    		TracePrint "Cond4 Pass"
+                        	IfColor DX + 655, DY + 328, "ffffff", 0 Then
+                        		TracePrint "Cond5 Pass"
+                            	IfColor DX + 646, DY + 339, "ffffff", 0 Then
+                            		TracePrint "Cond6 Pass"
+                                	IfColor DX + 654, DY + 336, "ffffff", 0 Then
+                                		TracePrint "Cond7 Pass"
+                                    	IfColor DX + 635, DY + 339, "ffffff", 0 Then
+                                    		TracePrint "Cond8 Pass"
+                                        	Delay 200
+                                        	Goto Found
+                                    	End if 
+                                	End if 
+                            	End if 
+                        	End if 
+                    	End if 
+                	End if 
+            	End if 
+        	End if 
+    	Next
+    	KeyPress 13,1
+    	Delay 500
+    	KeyDown 17,1
+    	KeyDown 39,1
+    	Delay 1500
+    	KeyUp 39,1
+    	KeyUp 17,1
+    	Delay 500
+    	
+	Next
+	Rem Found
+	KeyPress 13,1 // Talk to Trader
+	Delay 800 // Wait for talk options
+End Sub
+
+
+Sub FindBarOwner(DX,DY,hwnd)
+	For 3 // This loop is for rotating 90deg for 3 times
+    	Call BringWinOnTop(hwnd)
+    	Delay 10
+    	For 195
+        	KeyPress 9,1
+        	Delay 200
+        	IfColor DX + 636, DY + 331, "ffffff", 0 Then
+        		TracePrint "Cond1 Pass"
+            	IfColor DX + 633, DY + 333, "ffffff", 0 Then
+            		TracePrint "Cond2 Pass"
+                	IfColor DX + 654, DY + 330, "ffffff", 0 Then
+                		TracePrint "Cond3 Pass"
+                    	IfColor DX + 667, DY + 330, "ffffff", 0 Then
+                    		TracePrint "Cond4 Pass"
+                        	IfColor DX + 685, DY + 330, "ffffff", 0 Then
+                        		TracePrint "Cond5 Pass"
+                            	IfColor DX + 682, DY + 339, "ffffff", 0 Then
+                            		TracePrint "Cond6 Pass"
+                                	IfColor DX + 666, DY + 339, "ffffff", 0 Then
+                                		TracePrint "Cond7 Pass"
+                                    	IfColor DX + 638, DY + 339, "ffffff", 0 Then
+                                    		TracePrint "Cond8 Pass"
+                                        	Delay 200
+                                        	Goto Found
+                                    	End if 
+                                	End if 
+                            	End if 
+                        	End if 
+                    	End if 
+                	End if 
+            	End if 
+        	End if 
+    	Next
+    	KeyPress 13,1
+    	Delay 500
+    	KeyDown 17,1
+    	KeyDown 39,1
+    	Delay 1500
+    	KeyUp 39,1
+    	KeyUp 17,1
+    	Delay 500
+    	
+	Next
+	Rem Found
+	KeyPress 13,1 // Approach BarOwner
+	Delay 2000// Getting near
+	KeyPress 13,1 // Talk
+End Sub
+
+Sub ChooseFood(DX, DY, hwnd)
+	Call Move_Click(DX, DY, 646, 360) // Click Eat
+	Delay 1000
+	Call Move_Click(DX, DY, 446, 284) // Click Set Meal
+	Delay 1000
+	
+	Call Move_Click(DX, DY, 219, 130) // Choose Drink 1
+	Delay 500
+	
+	MouseWheel -6 
+	
+	Call Move_Click(DX, DY, 224, 186)//Choose Food 1
+	Delay 500
+	
+	Call Move_Click(DX, DY, 224, 243)//Choose Food 2
+	Delay 500
+	
+	Call Move_Click(DX, DY, 224, 302)//Choose Food 3
+	Delay 500
+	
+	Call Move_Click(DX, DY, 219, 130)//Choose Drink 2
+	Delay 500
+	
+	Call Move_Click(DX,DY,609,415) // Confirm
+End Sub
+
+Sub FindBarExit(DX,DY,hwnd)
+	For 3 // This loop is for rotating 90deg for 3 times
+    	Call BringWinOnTop(hwnd)
+    	Delay 10
+    	For 195
+        	KeyPress 9,1
+        	Delay 200
+        	IfColor DX + 630, DY + 334, "ffffff", 0 Then
+        		TracePrint "Cond1 Pass"
+            	IfColor DX + 640, DY + 334, "ffffff", 0 Then
+            		TracePrint "Cond2 Pass"
+                	IfColor DX + 646, DY + 334, "ffffff", 0 Then
+                		TracePrint "Cond3 Pass"
+                    	IfColor DX + 657, DY + 334, "ffffff", 0 Then
+                    		TracePrint "Cond4 Pass"
+                        	IfColor DX + 629, DY + 342, "ffffff", 0 Then
+                        		TracePrint "Cond5 Pass"
+                            	IfColor DX + 637, DY + 342, "ffffff", 0 Then
+                            		TracePrint "Cond6 Pass"
+                                	IfColor DX + 646, DY + 342, "ffffff", 0 Then
+                                		TracePrint "Cond7 Pass"
+                                    	IfColor DX + 657, DY + 342, "ffffff", 0 Then
+                                    		TracePrint "Cond8 Pass"
+                                        	Delay 200
+                                        	Goto Found
+                                    	End if 
+                                	End if 
+                            	End if 
+                        	End if 
+                    	End if 
+                	End if 
+            	End if 
+        	End if 
+    	Next
+    	KeyPress 13,1
+    	Delay 500
+    	KeyDown 17,1
+    	KeyDown 39,1
+    	Delay 1500
+    	KeyUp 39,1
+    	KeyUp 17,1
+    	Delay 500
+    	
+	Next
+	Rem Found
+	KeyPress 13, 1// Open the door
+	Delay 1000
+End Sub
+
+Sub EatinBar
+	BringWinOnTop(hwnd1)
+	OpenMap
+	Call Move_Click(DX1, DY1, 608, 115)
+	
+	Delay 21000
+	
+	Call FindBarEntrance(DX1, DY1, hwnd1)
+	Delay 1500
+	
+	Call FindBarOwner(DX1, DY1, hwnd1)
+	Delay 1000
+	Call ChooseFood(DX1, DY1, hwnd1)
+	
+	Call FindBarOwner(DX2,DY2,hwnd2)
+	Call ChooseFood(DX2, DY2, hwnd2)
+	
+	Call FindBarOwner(DX3,DY3,hwnd3)
+	Call ChooseFood(DX3, DY3, hwnd3)
+	
+	Call FindBarOwner(DX4,DY4,hwnd4)
+	Call ChooseFood(DX4, DY4, hwnd4)
+	
+	Call WalktoBarExit(hwnd1)
+	Call FindBarExit(DX1,DY1,hwnd1)	
+End Sub
+
+Sub UPDATE_PLAYER_MP_STATE(hwnd,state_add)
+	Player1_mp_value = Int(Plugin.Memory.Read16Bit(hwnd, state_add))
 End Sub
