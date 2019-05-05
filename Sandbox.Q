@@ -8,7 +8,7 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=f49da9b2-772b-499b-8650-d9e113107436
+MacroID=55eeb3ab-87ee-4820-996b-2e929eeba54b
 Description=Sandbox
 Enable=0
 AutoRun=0
@@ -23,123 +23,109 @@ SetupOCXFile=
 [Comment]
 
 [Script]
+//hwnd0 = Plugin.Window.Find("Afx:00400000:b:00010003:00000006:00240439", "athrun200 - ÉñÂ}Œ§º½")
+//TracePrint hwnd0
+
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
 
-hwnd = 197874
-hwnd3  = 68702
+hwnd = 133474
+hwnd2 = 134180
+hwnd3 = 68702
+hwnd4 = 68714
 
-counter = 0
-refresh = 0
-While refresh < 5
-	TracePrint "Do me every step"
-	If counter = 5 Then 
-		TracePrint "Refresh me"
-		counter = 0
-		refresh = refresh+1
-	End If
-	counter = counter+1
-Wend
+BringWinOnTop(hwnd)
+Call Plugin.Bkgnd.LeftDown(hwnd,173,131)
 
-s1 = Plugin.Window.GetClientRect(hwnd)
-
-MyArray1 = Split(s1, "|", -1, 1)
+Call Plugin.Bkgnd.LeftClick(hwnd, 173,131)
+//Call FindTrader(DX, DY, hwnd)
+Delay 300
+Call SellItemsA(DX, DY, hwnd)
+Delay 800
+Call BuyItemsA(DX, DY, hwnd)
+Delay 800
 
 
-DX1 = MyArray1(0)
-DY1 = MyArray1(1)
-
-TracePrint DX
-TracePrint DY
-
-
-MoveTo DX1 + 629, DY1 + 330
-Dim cond(3)
-IfColor DX1 + 629, DY1 + 330, "ffffff", 0 Then
-	TracePrint "True!!"
-	cond(0) = 0
-Else
-	cond(0) = -1
-End If
-
-IfColor DX1 + 641, DY1 + 332, "ffffff", 0 Then
-	cond(1) = 0
-Else
-	cond(1) = -1
-End If
-IfColor DX1 + 654, DY1 + 334, "ffffff", 0 Then
-
-	cond(2) = 0
-Else
-	cond(2) = - 1 
-End If
-
-TracePrint cond(0)
-TracePrint cond(1)
-TracePrint cond(2)
-
-Sub Move_Click(DX,DY, X,Y)
-    Moveto DX+X, DY+Y //Move to supply button
-    Delay 300 
-    LeftClick 1
+Sub SellItemsA(DX,DY,hwnd)
+	Call BringWinOnTop(hwnd)
+	KeyPress 13,1 // Talk to Trader
+	Delay 800 // Wait for talk options
+	
+	//Call Move_Click(DX, DY, 680, 359)// Option = Sell
+	Call Plugin.Bkgnd.LeftClick(hwnd, 680,359)
+	Delay 800
+	
+	//Call Move_Click(DX, DY, 286, 89)// Sell all
+	Call Plugin.Bkgnd.LeftClick(hwnd, 286,89)
+	Delay 800
+	
+	
+	//Call Move_Click(DX, DY, 456, 341)// Bargain
+	Call Plugin.Bkgnd.LeftClick(hwnd, 456,341)
+	Delay 800
+	
+	//Call Move_Click(DX, DY, 647, 423)// Confirm
+	Call Plugin.Bkgnd.LeftClick(hwnd, 647,423)
 End Sub
-
 
 Sub BringWinOnTop(hwnd)
 	Call Plugin.Window.Active(hwnd)
 	Call Plugin.Window.Restore(hwnd)
 End Sub
 
-Sub OpenMap
-	BringWinOnTop(hwnd1)
-	KeyDown "Ctrl", 1
-	KeyPress "F1", 1
-	KeyUp "Ctrl", 1
-End Sub
 
-Sub FindPortOfficer(DX,DY,hwnd)
-	For 3 // This loop is for rotating 90deg for 3 times
-    	Call BringWinOnTop(hwnd)
-    	Delay 10
-    	For 195
-        	KeyPress 9,1
-        	Delay 200
-        	IfColor DX + 640, DY + 340, "ffffff", 0 Then
-        		TracePrint "Cond1 Pass"
-            	IfColor DX + 631, DY + 331, "ffffff", 0 Then
-            		TracePrint "Cond2 Pass"
-                	IfColor DX + 638, DY + 332, "ffffff", 0 Then
-                		TracePrint "Cond3 Pass"
-                    	IfColor DX + 648, DY + 329, "ffffff", 0 Then
-                    		TracePrint "Cond4 Pass"
-                        	IfColor DX + 655, DY + 337, "ffffff", 0 Then
-                        		TracePrint "Cond5 Pass"
-                            	IfColor DX + 672, DY + 333, "ffffff", 0 Then
-                            		TracePrint "Cond6 Pass"
-                                	IfColor DX + 672, DY + 342, "ffffff", 0 Then
-                                		TracePrint "Cond7 Pass"
-                                    	IfColor DX + 684, DY + 334, "ffffff", 0 Then
-                                    		TracePrint "Cond8 Pass"
-                                        	Delay 200
-                                        	Goto FoundPortOfficer
-                                    	End if 
-                                	End if 
-                            	End if 
-                        	End if 
-                    	End if 
-                	End if 
-            	End if 
-        	End if 
-    	Next
-    	KeyPress 13,1
-    	Delay 500
-    	KeyDown 17,1
-    	KeyDown 39,1
-    	Delay 1500
-    	KeyUp 39,1
-    	KeyUp 17,1
-    	Delay 500
-    Next
-	Rem FoundPortOfficer
-	KeyPress 13,1 // Talk to Trader
-	Delay 800 // Wait for talk options
+Sub BuyItemsA(DX, DY, hwnd)
+	Call BringWinOnTop(hwnd)
+	Call Plugin.Bkgnd.LeftClick(hwnd, 640,357)
+	//Call Move_Click(DX, DY, 640, 357) // Option = Buy
+	Delay 800
+	
+	//Call Move_Click(DX, DY, 235, 261)// Buy the 1st target product
+	Call Plugin.Bkgnd.LeftClick(hwnd, 235,261)
+	Delay 200
+	//KeyPress 107, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+
+	Delay 200
+	//KeyPress 13, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+	Delay 200
+	
+	MouseWheel -6
+	
+	//Call Move_Click(DX, DY, 201, 195)// Buy the 2nd target product
+	Call Plugin.Bkgnd.LeftClick(hwnd, 201,195)
+	Delay 200
+	//KeyPress 107, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+	Delay 200
+	//KeyPress 13, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+	Delay 200
+	
+	//Call Move_Click(DX, DY, 235, 261)// Buy the 3rd target product
+	Call Plugin.Bkgnd.LeftClick(hwnd, 235,261)
+	Delay 200
+	//KeyPress 107, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+	Delay 200
+	//KeyPress 13, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+	Delay 200
+	
+	//Call Move_Click(DX, DY, 235, 300)// Buy the 3rd target product
+	Call Plugin.Bkgnd.LeftClick(hwnd, 235,300)
+	Delay 200
+	//KeyPress 107, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+	Delay 200
+	//KeyPress 13, 1
+	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+	Delay 200
+	
+	//Call Move_Click(DX, DY, 428, 304)// Bargain
+	Call Plugin.Bkgnd.LeftClick(hwnd, 428,304)
+	Delay 500
+	
+	//Call Move_Click(DX, DY, 647, 423)// Confirm	
+	Call Plugin.Bkgnd.LeftClick(hwnd, 647,423)
 End Sub

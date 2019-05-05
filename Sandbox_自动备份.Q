@@ -8,8 +8,8 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=5c9b0209-e9b6-40e5-ad3f-5fa67a483dcb
-Description=EatinBar
+MacroID=f49da9b2-772b-499b-8650-d9e113107436
+Description=Sandbox_自动备份
 Enable=0
 AutoRun=0
 [Repeat]
@@ -23,6 +23,9 @@ SetupOCXFile=
 [Comment]
 
 [Script]
+hwnd0 = Plugin.Window.Find("Afx:00400000:b:00010003:00000006:00240439", "athrun200 - 神聖導航")
+TracePrint hwnd0
+
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
 
 hwnd = 197874
@@ -53,9 +56,20 @@ DY3 = MyArray3(1)
 DX4 = MyArray4(0)
 DY4 = MyArray4(1)
 
+MP_add = &H0111FF4C
+Player1_mp_value = Int(Plugin.Memory.Read16Bit(hwnd, MP_add))
+TracePrint Player1_mp_value
+
 TracePrint DX
 TracePrint DY
 
+Call FindBarEntrance(DX, DY, hwnd)
+Delay 1500
+Call FindBarOwner(DX, DY, hwnd)
+Delay 500
+
+Call WalktoBarExit(hwnd)
+Call FindBarExit(DX,DY,hwnd)
 
 Sub WalktoBarExit(hwnd)
 	BringWinOnTop(hwnd)
@@ -255,31 +269,4 @@ Sub FindBarExit(DX,DY,hwnd)
 	Rem Found
 	KeyPress 13, 1// Open the door
 	Delay 1000
-End Sub
-
-Sub EatinBar
-	BringWinOnTop(hwnd)
-	OpenMap
-	Call Move_Click(DX, DY, 608, 115)
-	
-	Delay 21000
-	
-	Call FindBarEntrance(DX, DY, hwnd)
-	Delay 1500
-	
-	Call FindBarOwner(DX, DY, hwnd)
-	Delay 500
-	Call ChooseFood(DX, DY, hwnd)
-	
-	Call FindBarOwner(DX2,DY2,hwnd2)
-	Call ChooseFood(DX2, DY2, hwnd2)
-	
-	Call FindBarOwner(DX3,DY3,hwnd3)
-	Call ChooseFood(DX3, DY3, hwnd3)
-	
-	Call FindBarOwner(DX4,DY4,hwnd4)
-	Call ChooseFood(DX4, DY4, hwnd4)
-	
-	Call WalktoBarExit(hwnd)
-	Call FindBarExit(DX,DY,hwnd)	
 End Sub
