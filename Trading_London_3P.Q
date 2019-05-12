@@ -10,7 +10,7 @@ RunOnce=1
 EnableWindow=
 MacroID=fc1b842c-cff9-41a8-bacd-c7b4d7fdd0dc
 Description=Trading_London_3P
-Enable=1
+Enable=0
 AutoRun=0
 [Repeat]
 Type=2
@@ -24,12 +24,12 @@ SetupOCXFile=
 
 [Script]
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 328336
-hwnd1 = 262750
-hwnd2 = 66418
-hwnd3 = 197226
-hwnd4 = 394170
-ehwnd = 134132
+hwnd0 = 198648
+hwnd1 = 2363350
+hwnd2 = 133066
+hwnd3 = 133066
+hwnd4 = 198644
+ehwnd = 22285852
 
 sick_state = 2
 mouse_state = 8
@@ -74,6 +74,7 @@ DYe = MyArraye(1)
 TracePrint DXe
 TracePrint DYe
 
+
 //Sub reconnect
 //	Call CheckOnline_onport 
 //	If Player1_ol_value = 0 Then 
@@ -93,32 +94,9 @@ TracePrint DYe
 //	End If	
 //End Sub
 
+
 //---------------------------  Beginning
 
-Call Supply(DX1,DY1,hwnd1) 
-//Call Supply(DX2, DY2, hwnd2)
-Call Supply(DX3, DY3, hwnd3)
-Call Supply(DX4, DY4, hwnd4)
-Delay 900
-
-// Player 1 sail out
-Call SailOut
-
-Call Choose_Navi_Path ("To_LA.path")
-Delay 8000
-// Activate skills
-Call Plugin.Bkgnd.KeyPress(hwnd1, 121)//Press F10
-Delay 1800
-Call Plugin.Bkgnd.KeyPress(hwnd1, 113)//Press F3
-Call StartNavi
-
-cond = Check_Arrival(DX1, DY1)
-counter = 0
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-	cond = Check_Arrival(DX1, DY1)
-	Call CheckOnline_onsea
-	counter = counter+1
-Wend
 Call reconnect
 
 Call EnterPort_LA
@@ -132,7 +110,7 @@ End If
 Delay 5000
 
 Call Leaving(457,229) //Leave Dover
-Delay 4500
+Delay 2500
 
 
 Call UPDATE_PLAYER_MP_STATE(hwnd1, MP_add)
@@ -170,14 +148,37 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 
 	counter = counter+1
 Wend
-
-
 Call reconnect
 Call EnterPort_LB
 
 
 Call Leaving(655,247)
-Delay 4500
+Delay 2500
+
+Call Supply(DX1,DY1,hwnd1) 
+//Call Supply(DX2, DY2, hwnd2)
+Call Supply(DX3, DY3, hwnd3)
+Call Supply(DX4, DY4, hwnd4)
+Delay 900
+
+// Player 1 sail out
+Call SailOut
+
+Call Choose_Navi_Path ("To_LA.path")
+Delay 8000
+// Activate skills
+Call Plugin.Bkgnd.KeyPress(hwnd1, 121)//Press F10
+Delay 1800
+Call Plugin.Bkgnd.KeyPress(hwnd1, 113)//Press F3
+Call StartNavi
+
+cond = Check_Arrival(DX1, DY1)
+counter = 0
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+	cond = Check_Arrival(DX1, DY1)
+	Call CheckOnline_onsea
+	counter = counter+1
+Wend
 
 
 //-------------------Endof Prog---------------------
@@ -953,16 +954,16 @@ End Sub
 Sub SendAlert
 	//BringWinOnTop (ehwnd)
 	//Call Move_Click(DXe, DYe, 74, 222)// Create a new email
-	Call Plugin.Bkgnd.LeftClick(ehwnd, 74, 222)
+	Call Plugin.Bkgnd.LeftClick(ehwnd, 425, 1194)
 	Delay 500
-	Call Plugin.Bkgnd.SendString(ehwnd, "u3500684@connect.hku.hk")
-	Call Plugin.Bkgnd.KeyPress(ehwnd, 13) // confirm address
-	Delay 150
-	Call Plugin.Bkgnd.KeyPress(ehwnd, 9)// move to title filed
-	Delay 100
 	Call Plugin.Bkgnd.SendString(ehwnd, "Disconnected")
-
-	Call Plugin.Bkgnd.LeftClick(ehwnd, 469, 1003) // Send out email
+	Call Plugin.Bkgnd.KeyPress(ehwnd, 13) // confirm address
+//	Delay 150
+//	Call Plugin.Bkgnd.KeyPress(ehwnd, 9)// move to title filed
+//	Delay 100
+//	Call Plugin.Bkgnd.SendString(ehwnd, "Disconnected")
+//
+//	Call Plugin.Bkgnd.LeftClick(ehwnd, 469, 1003) // Send out email
 	//MoveTo DXe + 469, DYe + 1003
 	//LeftClick 1
 	//ExitScript
