@@ -8,7 +8,7 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=9d8d6639-71ef-40e9-9c34-8d4ee640491a
+MacroID=bf63f486-513c-4ddd-b3e7-9e02069722dc
 Description=Autoheal
 Enable=0
 AutoRun=0
@@ -32,11 +32,11 @@ SetupOCXFile=
 //TracePrint MyArray(2)
 //TracePrint MyArray(3)
 
-hwnd0 = 263976
-hwnd1 = 6887962
-hwnd2 = 5446630
-hwnd3 = 6821650
-hwnd4 = 4593052
+hwnd0 = 198432
+hwnd1 = 13762808
+hwnd2 = 27791202
+hwnd3 = 132956
+hwnd4 = 10818044
 ehwnd = 134132
 
 sick_state = 2
@@ -421,6 +421,7 @@ Sub FindLow_Player(hwnd, target_ID)
         	TargetID = Int(Plugin.Memory.Read32Bit(hwnd, TargetID_add))
         	TracePrint "Finding Low Food Player"
         	TracePrint TargetID
+
         	TracePrint target_ID
         	Delay 100
         	If TargetID = target_ID Then 

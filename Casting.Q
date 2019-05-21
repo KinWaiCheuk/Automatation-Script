@@ -8,13 +8,13 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=88e72ff8-0f92-441d-8905-9e09953c3f52
+MacroID=179ad6c5-acb4-4215-b382-7ee11aeaca2a
 Description=Casting
 Enable=0
 AutoRun=0
 [Repeat]
 Type=0
-Number=100
+Number=200
 [SetupUI]
 Type=2
 QUI=
@@ -25,11 +25,11 @@ SetupOCXFile=
 [Script]
 // Loading Memory
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 856042
-hwnd1 = 5446630
-hwnd2 = 13109984
-hwnd3 = 22287928
-hwnd4 = 23203286
+hwnd0 = 591984
+hwnd1 = 27791202
+hwnd2 = 27791202
+hwnd3 = 132956
+hwnd4 = 10818044
 ehwnd = 134132
 
 sick_state = 2
@@ -112,38 +112,11 @@ End Sub
 
 //--------End of Test-------------
 
+
 // ------- Start of Prog----------
 
-cond = Check_Arrival(DX1, DY1)
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-	cond = Check_Arrival(DX1, DY1)
-	//Call CheckOnline_onsea
-
-	counter = counter+1
-Wend
-
-Delay 2000
-Call SailOut
-Delay 1000
-TracePrint "Going back to A"
-Call Choose_Navi_Path("To_CastA")
-Call StartNavi
-
-Activate_Skill(hwnd1)
-
-
-
-
-cond = Check_Arrival(DX1, DY1)
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-    cond = Check_Arrival(DX1, DY1)
-    //Call CheckOnline_onsea
-
-    counter = counter+1
-Wend
 
 Call EnterPort_LA
-
 
 Call Leaving(hwnd1, 393, 250)
 Delay 3000
@@ -156,6 +129,44 @@ Call Choose_Navi_Path("To_CastB")
 Call StartNavi
 Delay 1000
 Activate_Skill (hwnd1)
+
+cond = Check_Arrival(DX1, DY1)
+counter = 0
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+	cond = Check_Arrival(DX1, DY1)
+	//Call CheckOnline_onsea
+	If counter = 30 Then 
+		Produce_Cannon (hwnd1)
+		Delay 1000
+		// Produce_FOOD (hwnd)
+	
+	
+	
+		Call SupplyMP(hwnd1)
+	End If
+	counter = counter + 1
+	Delay 1000
+Wend
+
+Delay 2000
+Call SailOut
+Delay 1000
+TracePrint "Going back to A"
+Call Choose_Navi_Path("To_CastA")
+Call StartNavi
+
+Activate_Skill(hwnd1)
+
+cond = Check_Arrival(DX1, DY1)
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+    cond = Check_Arrival(DX1, DY1)
+    //Call CheckOnline_onsea
+
+    counter = counter+1
+Wend
+
+
+
 
 
 //Call reconnect
@@ -209,21 +220,14 @@ Sub OpenMap
 End Sub
 
 Sub TradingA(DX, DY, hwnd)
-	Call Sell_Extra(hwnd1)
+	Call Sell_Extra(hwnd)
 	Delay 1000
-    Call FindTrader(hwnd, 25169018)
+    Call FindTrader(hwnd, 25167772)
     Delay 1000
     Call BuyCast(DX, DY, hwnd)
     Delay 1000
-	Produce_Cannon (hwnd)
-	Delay 1000
-	// Produce_FOOD (hwnd)
 	
-	
-	
-	Call SupplyMP(hwnd)
-	
-	Call Plugin.Bkgnd.KeyPress(hwnd, 121) // Cancel Skill
+	// Call Plugin.Bkgnd.KeyPress(hwnd, 121) // Cancel Skill
 
 	
 	
@@ -241,6 +245,10 @@ Sub FindTrader(hwnd, target_ID)
             If TargetID = target_ID Then 
                 Goto Found
             End If
+            TracePrint "TargetID"
+            TracePrint TargetID
+            TracePrint "target_ID"
+            TracePrint target_ID
         Next
         Delay 500
         KeyDown 17,1
@@ -271,8 +279,8 @@ Sub BuyCast(DX, DY, hwnd)
 	
     Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
     Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 103)
-    Call Plugin.Bkgnd.KeyPress(hwnd, 96)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 104)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 101)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
     Delay 200
@@ -341,7 +349,8 @@ End Sub
 
 
 Sub Produce_Cannon(hwnd)
-	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+	// You don't need this one, since you are already on sea with skill activated
+	 // Call Plugin.Bkgnd.KeyPress(hwnd, 121)
 
 	// Convert wheat to powder
 	Delay 1000
@@ -371,19 +380,22 @@ Sub Produce_Cannon(hwnd)
 	Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
 	Delay 1000
 	TracePrint "Fourth Esc"
+	Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+	Delay 1000
+	TracePrint "Fifth Esc"
 	Call Plugin.Bkgnd.KeyPress(hwnd, 27) // Exit Meun
 End Sub
 
 
 Sub Sell_Extra(hwnd)
-	Call FindTrader(hwnd1, 25169018)
+	Call FindTrader(hwnd1, 25167772)
 	Delay 1000
 	// Sell suplus Food
 	Call Plugin.Bkgnd.LeftClick(hwnd, 684, 365)
 	Delay 2000
 	
 	// Wheel down
-	rubbish = "E:\Raven\Desktop\HolyNavi_145c\gamescript\Cannon.bmp"
+	rubbish = "C:\Users\RavenCheuk\Desktop\HolyNavi_145c\Pictures\Cannon.bmp"
 	XY = Plugin.Bkgnd.FindMultiPicEx(hwnd, 69, 103, 122, 274, rubbish, 0, 0.5)
 	If XY = "-1,-1" Then 
 		TracePrint "Pic not found"
@@ -414,7 +426,7 @@ Sub SupplyMP(hwnd)
 	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
 	
 	
-	While MP_val < 750
+	While MP_val < 700
 		// Convert wheat to powder
 		Delay 500
 		Call Plugin.Bkgnd.KeyPress(hwnd, 112)// Eat Food
@@ -428,7 +440,7 @@ Sub Leaving(hwnd, X, Y)
 	Call Move_Click_v2(hwnd, X, Y)// Click the PortOfficer Location
 //	TracePrint "Clicked"
 	Delay 4000
-	Call FindTrader(hwnd, 25169019)
+	Call FindTrader(hwnd, 25167773)
 	Delay 1000
 	Call Move_Click_v2(hwnd, 646,363)
 		
