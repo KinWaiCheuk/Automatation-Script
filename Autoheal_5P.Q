@@ -8,9 +8,9 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=bf63f486-513c-4ddd-b3e7-9e02069722dc
-Description=Autoheal
-Enable=0
+MacroID=8c519e09-eaf4-49eb-bcf8-875bc1e0a948
+Description=Autoheal_5P
+Enable=1
 AutoRun=0
 [Repeat]
 Type=0
@@ -32,11 +32,12 @@ SetupOCXFile=
 //TracePrint MyArray(2)
 //TracePrint MyArray(3)
 
-hwnd0 = 263710
-hwnd1 = 132618
-hwnd2 = 1314534
-hwnd3 = 131738
-hwnd4 = 263710
+hwnd0 = 328528
+hwnd1 = 197000
+hwnd2 = 66552
+hwnd3 = 66582
+hwnd4 = 197612
+hwnd5 = 328566
 ehwnd = 134132
 
 sick_state = 2
@@ -49,17 +50,19 @@ fire_state = 16
 Water_add = &H0111FF5A
 Food_add = &H0111FF5C
 
-Dim PlayerID(3)
+Dim PlayerID(4)
 PlayerID(0) = 6031955
 PlayerID(1) = 6033147
 PlayerID(2) = 6034843
 PlayerID(3) = 6221865
+PlayerID(4) = 12789283
 
-Dim PlayerHWND(3)
+Dim PlayerHWND(4)
 PlayerHWND(0) = hwnd1
 PlayerHWND (1) = hwnd2
 PlayerHWND (2) = hwnd3
 PlayerHWND(3) = hwnd4
+PlayerHWND(4) = hwnd5
 
 //Call Plugin.Window.Move(Hwnd1, 100, 100)
 
@@ -70,10 +73,11 @@ TargetID_add = &H0111AEA4
 
 //Goto Sail
 
-Call Supply(DX1,DY1,hwnd1) 
-Call Supply(DX2, DY2, hwnd2)
-Call Supply(DX3, DY3, hwnd3)
-Call Supply(DX4, DY4, hwnd4)
+Call Supply(hwnd1) 
+Call Supply(hwnd2)
+Call Supply(hwnd3)
+Call Supply(hwnd4)
+Call Supply(hwnd5)
 //
 // Player 1 sail out
 Call SailOut
@@ -91,10 +95,14 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
     TracePrint counter
     Autoheal 
     cond = Check_Arrival(DX1, DY1)
-
-	Call Dist_Resources
+    
+	If counter = 60 Then 
+		Call Dist_Resources	
+	End If
+	
 	
     If counter = 120 Then 
+    	Call Dist_Resources
         Call Refresh_Nav
         Call BringWinOnTop(hwnd1)
         // Keep player 2,3,4 active
@@ -106,6 +114,9 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 		
         Call Plugin.Bkgnd.KeyPress(hwnd4, 121)//Press F10 
         Call Plugin.Bkgnd.KeyPress(hwnd4, 121)//Press F10
+        
+        Call Plugin.Bkgnd.KeyPress(hwnd5, 121)//Press F10 
+        Call Plugin.Bkgnd.KeyPress(hwnd5, 121)//Press F10
         counter = 0
 		
     End If
@@ -170,6 +181,7 @@ Sub UPDATE_PLAYER_STATE
     Player2_state_value = Int(Plugin.Memory.Read8Bit(hwnd2, state_add))
     Player3_state_value = Int(Plugin.Memory.Read8Bit(hwnd3, state_add))
     Player4_state_value = Int(Plugin.Memory.Read8Bit(hwnd4, state_add))
+    Player5_state_value = Int(Plugin.Memory.Read8Bit(hwnd5, state_add))
 End Sub
 
 
@@ -177,12 +189,12 @@ Sub Autoheal
     Call UPDATE_PLAYER_STATE
 	 
     // Checking if anyone is sick
-    If Player1_state_value=sick_state or Player2_state_value=sick_state or Player3_state_value=sick_state or Player4_state_value=sick_state
+    If Player1_state_value=sick_state or Player2_state_value=sick_state or Player3_state_value=sick_state or Player4_state_value=sick_state or  Player5_state_value=sick_state
         TracePrint "Someone is sick"
 		
         Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10 	
         // Mutliple heal if more than 1 player is sick
-        While Player1_state_value=sick_state or Player2_state_value=sick_state or Player3_state_value=sick_state or Player4_state_value=sick_state
+        While Player1_state_value=sick_state or Player2_state_value=sick_state or Player3_state_value=sick_state or Player4_state_value=sick_state or Player5_state_value=sick_state
             Delay 1000
             Call Plugin.Bkgnd.KeyPress(hwnd2, 114)//Press F3
             Call UPDATE_PLAYER_STATE
@@ -190,12 +202,12 @@ Sub Autoheal
         Call Plugin.Bkgnd.KeyPress(hwnd2, 121) //Press F10 again to cancael meun
     End If
 	
-    If Player1_state_value=sick_state_2 or Player2_state_value=sick_state_2 or Player3_state_value=sick_state_2 or Player4_state_value=sick_state_2
+    If Player1_state_value=sick_state_2 or Player2_state_value=sick_state_2 or Player3_state_value=sick_state_2 or Player4_state_value=sick_state_2 or  Player5_state_value=sick_state_2
         TracePrint "Someone is sick_state_2"
 	
         Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10 	
         // Mutliple heal if more than 1 player is sick
-        While Player1_state_value=sick_state_2 or Player2_state_value=sick_state_2 or Player3_state_value=sick_state_2 or Player4_state_value=sick_state_2
+        While Player1_state_value=sick_state_2 or Player2_state_value=sick_state_2 or Player3_state_value=sick_state_2 or Player4_state_value=sick_state_2 or  Player5_state_value=sick_state_2
             Delay 1000
             Call Plugin.Bkgnd.KeyPress(hwnd2, 114)//Press F3
             Call UPDATE_PLAYER_STATE
@@ -204,11 +216,11 @@ Sub Autoheal
     End If
 	
     // Checking if anyone is Mouse
-    If Player1_state_value=mouse_state or Player2_state_value=mouse_state or Player3_state_value=mouse_state or Player4_state_value=mouse_state
+    If Player1_state_value=mouse_state or Player2_state_value=mouse_state or Player3_state_value=mouse_state or Player4_state_value=mouse_state or Player5_state_value=mouse_state
         TracePrint "Someone has Mouse"
         Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10 
         // Mutliple heal if more than 1 player has mouse
-        While Player1_state_value=mouse_state or Player2_state_value=mouse_state or Player3_state_value=mouse_state or Player4_state_value=mouse_state
+        While Player1_state_value=mouse_state or Player2_state_value=mouse_state or Player3_state_value=mouse_state or Player4_state_value=mouse_state  or Player5_state_value=mouse_state
             Delay 800
             Call Plugin.Bkgnd.KeyPress(hwnd2, 113)//Press F3
             Call UPDATE_PLAYER_STATE
@@ -217,12 +229,12 @@ Sub Autoheal
     End If
 	
     // Checking if anyone is on Fire
-    If Player1_state_value=fire_state or Player2_state_value=fire_state or Player3_state_value=fire_state or Player4_state_value=fire_state
+    If Player1_state_value=fire_state or Player2_state_value=fire_state or Player3_state_value=fire_state or Player4_state_value=fire_state or Player5_state_value=fire_state
         TracePrint "Someone has Mouse"
         Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10 
 		
         // Mutliple heal if more than 1 player has mouse
-        While Player1_state_value=fire_state or Player2_state_value=fire_state or Player3_state_value=fire_state or Player4_state_value=fire_state
+        While Player1_state_value=fire_state or Player2_state_value=fire_state or Player3_state_value=fire_state or Player4_state_value=fire_state or Player5_state_value=fire_state
             Delay 800
             Call Plugin.Bkgnd.KeyPress(hwnd2, 116)//Press F3
             Call UPDATE_PLAYER_STATE
@@ -259,17 +271,18 @@ End Sub
 
 
 Function UPDATE_PLAYER_16Bit(address)
-    Dim player_array(3)
+    Dim player_array(4)
     player_array(0) = Int(Plugin.Memory.Read16Bit(hwnd1, address))
     player_array(1) = Int(Plugin.Memory.Read16Bit(hwnd2, address))
     player_array(2) = Int(Plugin.Memory.Read16Bit(hwnd3, address))
     player_array(3) = Int(Plugin.Memory.Read16Bit(hwnd4, address))
+    player_array(4) = Int(Plugin.Memory.Read16Bit(hwnd5, address))
 	
     UPDATE_PLAYER_16Bit = player_array
 End Function
 
 
-Sub Supply(DX,DY, hwnd)
+Sub Supply(hwnd)
 	Call BringWinOnTop(hwnd)
 	//Call Move_Click_v2(hwnd, 682, 360)// Supply button
 	Call Plugin.Bkgnd.LeftClick(hwnd, 682, 360)
@@ -414,9 +427,9 @@ Sub TradeFood
 End Sub
 
 Sub FindLow_Player(hwnd, target_ID)
-	For 4 // This loop is for rotating 90deg for 3 times
+	For 10 // This loop is for rotating 90deg for 3 times
     	BringWinOnTop(hwnd)
-    	For 5
+    	For 10
         	KeyPress 9, 1
         	TargetID = Int(Plugin.Memory.Read32Bit(hwnd, TargetID_add))
         	TracePrint "Finding Low Food Player"
