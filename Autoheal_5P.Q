@@ -23,28 +23,26 @@ SetupOCXFile=
 [Comment]
 
 [Script]
-//HwndEx = Plugin.Window.SearchEx("Greate Voyages Online Game MainFrame","大航海時代 Online",1)
-//Hwnd0 = Plugin.Window.Find("Afx:00400000:b:00010003:00000006:00240439","athrun200 - 神聖導航")
-//dim MyArray
-//MyArray = Split(HwndEx, "|")
-//TracePrint MyArray(0)
-//TracePrint MyArray(1)
-//TracePrint MyArray(2)
-//TracePrint MyArray(3)
-
-hwnd0 = 328528
-hwnd1 = 197000
-hwnd2 = 66552
-hwnd3 = 66582
-hwnd4 = 197612
+// -----------Parameters
+hwnd0 = 8852040
+hwnd1 = 855270
+hwnd2 = 1051424
+hwnd3 = 2493280
+hwnd4 = 3280600
 hwnd5 = 328566
 ehwnd = 134132
+
+num_players = 4
+
+watchdog = hwnd2
+healer = hwnd1
+// ----------End of Parameters
+
 
 sick_state = 2
 sick_state_2 = 1
 mouse_state = 8
 fire_state = 16
-
 
 // Loading memory for food exchange
 Water_add = &H0111FF5A
@@ -64,37 +62,40 @@ PlayerHWND (2) = hwnd3
 PlayerHWND(3) = hwnd4
 PlayerHWND(4) = hwnd5
 
-//Call Plugin.Window.Move(Hwnd1, 100, 100)
+Dim player_state_value(4)
 
 state_add = &H0111FEA4
 Water_add = &H0111FF5A
 Food_add = &H0111FF5C
 TargetID_add = &H0111AEA4
 
-//Goto Sail
+// Test Area
 
-Call Supply(hwnd1) 
-Call Supply(hwnd2)
-Call Supply(hwnd3)
-Call Supply(hwnd4)
-Call Supply(hwnd5)
-//
+// End of Test Area
+
+
+// Supplying Food
+For i = 0 To (num_players - 1)
+	Call Supply(PlayerHWND(i), "saved")
+Next
+
 // Player 1 sail out
 Call SailOut
-Delay 3000
+Delay 6000
 
-Call Plugin.Bkgnd.KeyPress(hwnd1, 121)
+// Activating skills
+Call Plugin.Bkgnd.KeyPress(watchdog, 121)
 Delay 1000
-Call Plugin.Bkgnd.KeyPress(hwnd1, 113)
+Call Plugin.Bkgnd.KeyPress(watchdog, 113)
 
-// Beginning of autosail
-Rem Sail
-cond = Check_Arrival(DX1, DY1)
+
+
+cond = Check_Arrival
 counter = 0
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1 
     TracePrint counter
     Autoheal 
-    cond = Check_Arrival(DX1, DY1)
+    cond = Check_Arrival
     
 	If counter = 60 Then 
 		Call Dist_Resources	
@@ -125,14 +126,14 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 Wend
 
 
-Function Check_Arrival(DX1, DY1)
+Function Check_Arrival
     Dim cond(3)
     color1 = Plugin.BkgndColor.GetPixelColor(hwnd1,629,330)
     color2 = Plugin.BkgndColor.GetPixelColor(hwnd1, 641, 332)
     color3 = Plugin.BkgndColor.GetPixelColor(hwnd1, 654, 334)
+    color4 = Plugin.BkgndColor.GetPixelColor(hwnd1, 648, 364)
 	
     If Hex(color1) = "FFFFFF" Then 
-        TracePrint "True!!"
         cond(0) = 0
     Else 
         cond(0) = -1
@@ -149,41 +150,88 @@ Function Check_Arrival(DX1, DY1)
     Else 
         cond(2) = -1
     End If
-
-	
-	
-    //	IfColor DX1 + 629, DY1 + 330, "ffffff", 0 Then
-    //		TracePrint "True!!"
-    //		cond(0) = 0
-    //	Else
-    //		cond(0) = -1
-    //	End If
-    //	
-    //	IfColor DX1 + 641, DY1 + 332, "ffffff", 0 Then
-    //		cond(1) = 0
-    //	Else
-    //		cond(1) = -1
-    //	End If
-    //	
-    //	IfColor DX1 + 654, DY1 + 334, "ffffff", 0 Then
-    //	
-    //		cond(2) = 0
-    //	Else
-    //		cond(2) = -1 
-    //	End If
+    
+    If color4 = "1586034" Then 
+        TracePrint "True!!"
+    	cond(3) = 0
+    Else 
+    	cond(3) = -1
+    End If
 		
     Check_Arrival = cond
 End Function
 
 
 Sub UPDATE_PLAYER_STATE
-    Player1_state_value = Int(Plugin.Memory.Read8Bit(hwnd1, state_add))
-    Player2_state_value = Int(Plugin.Memory.Read8Bit(hwnd2, state_add))
-    Player3_state_value = Int(Plugin.Memory.Read8Bit(hwnd3, state_add))
-    Player4_state_value = Int(Plugin.Memory.Read8Bit(hwnd4, state_add))
-    Player5_state_value = Int(Plugin.Memory.Read8Bit(hwnd5, state_add))
+	For i = 0 To (num_players - 1)
+		player_state_value(i) = Int(Plugin.Memory.Read8Bit(PlayerHWND(i), state_add))
+		// TracePrint player_state_value(i)
+	Next
+//    Player1_state_value = Int(Plugin.Memory.Read8Bit(hwnd1, state_add))
+//    Player2_state_value = Int(Plugin.Memory.Read8Bit(hwnd2, state_add))
+//    Player3_state_value = Int(Plugin.Memory.Read8Bit(hwnd3, state_add))
+//    Player4_state_value = Int(Plugin.Memory.Read8Bit(hwnd4, state_add))
+//    Player5_state_value = Int(Plugin.Memory.Read8Bit(hwnd5, state_add))
 End Sub
 
+
+Sub Autohealv2
+	Call UPDATE_PLAYER_STATE
+	
+	For i = 0 To num_players - 1
+		If player_state_value(i) = sick_state or player_state_value(i) = sick_state_2 Then 
+			TracePrint "Someone is sick"
+        	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
+        	// Mutliple heal if more than 1 player is sick
+        	While player_state_value(i) = sick_state or player_state_value(i) = sick_state_2
+            	Delay 1000
+            	Call Plugin.Bkgnd.KeyPress(healer, 114)//Press F3
+            	Call UPDATE_PLAYER_STATE
+        	Wend
+        	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
+		End If
+		
+		If player_state_value(i) = sick_state_2 Then 
+			TracePrint "Someone is sick"
+        	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
+        	// Mutliple heal if more than 1 player is sick
+        	While player_state_value(i) = sick_state_2
+            	Delay 1000
+            	Call Plugin.Bkgnd.KeyPress(healer, 114)//Press F3
+            	Call UPDATE_PLAYER_STATE
+        	Wend
+        	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
+		End If		
+		
+		If player_state_value(i) = mouse_state Then 
+			TracePrint "Someone is sick"
+        	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
+        	// Mutliple heal if more than 1 player has mouse
+        	While player_state_value(i) = mouse_state
+            	Delay 1000
+            	Call Plugin.Bkgnd.KeyPress(healer, 113)//Press F2
+            	Call UPDATE_PLAYER_STATE
+        	Wend
+        	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
+		End If
+
+		If player_state_value(i) = fire_state Then 
+			TracePrint "Someone is sick"
+        	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
+        	// Mutliple heal if more than 1 player has mouse
+        	While player_state_value(i) = fire_state
+            	Delay 1000
+            	Call Plugin.Bkgnd.KeyPress(healer, 116)//Press F5
+            	Call UPDATE_PLAYER_STATE
+        	Wend
+        	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
+		End If
+		
+		
+		
+		
+	Next
+End Sub
 
 Sub Autoheal
     Call UPDATE_PLAYER_STATE
@@ -272,24 +320,37 @@ End Sub
 
 Function UPDATE_PLAYER_16Bit(address)
     Dim player_array(4)
-    player_array(0) = Int(Plugin.Memory.Read16Bit(hwnd1, address))
-    player_array(1) = Int(Plugin.Memory.Read16Bit(hwnd2, address))
-    player_array(2) = Int(Plugin.Memory.Read16Bit(hwnd3, address))
-    player_array(3) = Int(Plugin.Memory.Read16Bit(hwnd4, address))
-    player_array(4) = Int(Plugin.Memory.Read16Bit(hwnd5, address))
+    
+    For i = 0 To (num_players - 1)
+		player_array(i) = Int(Plugin.Memory.Read8Bit(PlayerHWND(i), address))
+		// TracePrint player_state_value(i)
+	Next
+    
+    
+//    player_array(0) = Int(Plugin.Memory.Read16Bit(hwnd1, address))
+//    player_array(1) = Int(Plugin.Memory.Read16Bit(hwnd2, address))
+//    player_array(2) = Int(Plugin.Memory.Read16Bit(hwnd3, address))
+//    player_array(3) = Int(Plugin.Memory.Read16Bit(hwnd4, address))
+//    player_array(4) = Int(Plugin.Memory.Read16Bit(hwnd5, address))
 	
     UPDATE_PLAYER_16Bit = player_array
 End Function
 
 
-Sub Supply(hwnd)
+Sub Supply(hwnd, mode)
 	Call BringWinOnTop(hwnd)
 	//Call Move_Click_v2(hwnd, 682, 360)// Supply button
 	Call Plugin.Bkgnd.LeftClick(hwnd, 682, 360)
 	
-	Delay 800 // Wait for supply meun to pop up	
-	//Call Move_Click_v2(hwnd, 194, 360)// Supply to saved value
-	Call Plugin.Bkgnd.LeftClick(hwnd, 194, 360)
+	Delay 800// Wait for supply meun to pop up	
+	
+	If mode = "saved" Then 
+		Call Plugin.Bkgnd.LeftClick(hwnd, 194, 360)// Supply to saved value
+	ElseIf mode = "max" Then 
+		Call Plugin.Bkgnd.LeftClick(hwnd, 308, 363)// Supply to max
+	Else 
+		TracePrint "Invalid mode"
+	End If
 	
 	Delay 300
 	//Call Move_Click_v2(hwnd, 597, 404)// Click confirm button
