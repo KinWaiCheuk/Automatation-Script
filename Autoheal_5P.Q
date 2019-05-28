@@ -94,7 +94,7 @@ cond = Check_Arrival
 counter = 0
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1 
     TracePrint counter
-    Autohealv2 
+    Autohealv3
     cond = Check_Arrival
 	If counter = 60 Then 
 		Call Dist_Resources	
@@ -226,6 +226,73 @@ Sub Autohealv2
 		
 		
 		
+		
+	Next
+End Sub
+
+Sub Autohealv3
+	Call UPDATE_PLAYER_STATE
+	counter = 0
+	
+	// Looping over to see if anyone is sick
+	For i = 0 To num_players - 1
+		If player_state_value(i) = sick_state Then 
+			TracePrint "Someone is sick"
+			counter = counter + 1
+		End If		
+		
+		If player_state_value(i) = sick_state_2 Then 
+			TracePrint "Someone is sick"
+			counter = counter + 1
+		End If
+	Next
+	
+	// Start healing sickness
+	If counter > 0 Then 
+		Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 
+		For j=0 To counter	// Mutliple heal if more than 1 player is sick	
+        	Delay 500
+        	Call Plugin.Bkgnd.KeyPress(healer, 114)//Press F3
+    	Next
+    	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 again to cancael meun
+    	counter = 0
+	End If
+	
+	
+	For i = 0 To num_players - 1
+		If player_state_value(i) = mouse_state Then 
+			TracePrint "Someone has mouse"
+			counter = counter + 1		
+		End If
+	Next
+
+	// Start healing mouse
+	If counter > 0 Then 
+		Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 
+		For j = 0 To counter// Mutliple heal if more than 1 player is sick	
+			Delay 500
+        	Call Plugin.Bkgnd.KeyPress(healer, 113)//Press F2
+    	Next
+    	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 again to cancael meun
+    	counter = 0
+	End If
+	
+	For i = 0 To num_players - 1
+		If player_state_value(i) = fire_state Then 
+			TracePrint "Someone is on fire"
+			counter = counter + 1			
+		End If
+			
+	// Start extinguishing fire
+	If counter > 0 Then 
+		Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 
+		For j = 0 To counter// Mutliple heal if more than 1 player is sick	
+			Delay 500
+        	Call Plugin.Bkgnd.KeyPress(healer, 116)//Press F5
+    	Next
+    	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 again to cancael meun
+    	counter = 0
+	End If			
 		
 	Next
 End Sub
