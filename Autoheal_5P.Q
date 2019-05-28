@@ -24,18 +24,18 @@ SetupOCXFile=
 
 [Script]
 // -----------Parameters
-hwnd0 = 8852040
-hwnd1 = 855270
-hwnd2 = 1051424
-hwnd3 = 2493280
-hwnd4 = 3280600
-hwnd5 = 328566
+hwnd0 = 459044
+hwnd1 = 656554
+hwnd2 = 328852
+hwnd3 = 920350
+hwnd4 = 264742
+hwnd5 = 133882
 ehwnd = 134132
 
-num_players = 4
+num_players = 5
 
-watchdog = hwnd2
-healer = hwnd1
+watchdog = hwnd1
+healer = hwnd2
 // ----------End of Parameters
 
 
@@ -94,9 +94,8 @@ cond = Check_Arrival
 counter = 0
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1 
     TracePrint counter
-    Autoheal 
+    Autohealv2 
     cond = Check_Arrival
-    
 	If counter = 60 Then 
 		Call Dist_Resources	
 	End If
@@ -179,51 +178,49 @@ Sub Autohealv2
 	Call UPDATE_PLAYER_STATE
 	
 	For i = 0 To num_players - 1
-		If player_state_value(i) = sick_state or player_state_value(i) = sick_state_2 Then 
+		If player_state_value(i) = sick_state Then 
 			TracePrint "Someone is sick"
         	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
         	// Mutliple heal if more than 1 player is sick
-        	While player_state_value(i) = sick_state or player_state_value(i) = sick_state_2
-            	Delay 1000
-            	Call Plugin.Bkgnd.KeyPress(healer, 114)//Press F3
-            	Call UPDATE_PLAYER_STATE
-        	Wend
+            Delay 1000
+            Call Plugin.Bkgnd.KeyPress(healer, 114)//Press F3
+            Call UPDATE_PLAYER_STATE
         	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
-		End If
+		End If		
 		
 		If player_state_value(i) = sick_state_2 Then 
 			TracePrint "Someone is sick"
         	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
         	// Mutliple heal if more than 1 player is sick
-        	While player_state_value(i) = sick_state_2
+//        	While player_state_value(i) = sick_state_2
             	Delay 1000
-            	Call Plugin.Bkgnd.KeyPress(healer, 114)//Press F3
-            	Call UPDATE_PLAYER_STATE
-        	Wend
+            Call Plugin.Bkgnd.KeyPress(healer, 114)//Press F3
+//            	Call UPDATE_PLAYER_STATE
+//        	Wend
         	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
 		End If		
 		
 		If player_state_value(i) = mouse_state Then 
-			TracePrint "Someone is sick"
+			TracePrint "Someone has mouse"
         	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
         	// Mutliple heal if more than 1 player has mouse
-        	While player_state_value(i) = mouse_state
+//        	While player_state_value(i) = mouse_state
             	Delay 1000
-            	Call Plugin.Bkgnd.KeyPress(healer, 113)//Press F2
-            	Call UPDATE_PLAYER_STATE
-        	Wend
+            Call Plugin.Bkgnd.KeyPress(healer, 113)//Press F2
+//            	Call UPDATE_PLAYER_STATE
+//        	Wend
         	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
 		End If
 
 		If player_state_value(i) = fire_state Then 
-			TracePrint "Someone is sick"
+			TracePrint "Someone is on fire"
         	Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 	
         	// Mutliple heal if more than 1 player has mouse
-        	While player_state_value(i) = fire_state
+//        	While player_state_value(i) = fire_state
             	Delay 1000
-            	Call Plugin.Bkgnd.KeyPress(healer, 116)//Press F5
-            	Call UPDATE_PLAYER_STATE
-        	Wend
+            Call Plugin.Bkgnd.KeyPress(healer, 116)//Press F5
+//            	Call UPDATE_PLAYER_STATE
+//        	Wend
         	Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun			
 		End If
 		
