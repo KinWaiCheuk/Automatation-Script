@@ -8,7 +8,7 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=8c519e09-eaf4-49eb-bcf8-875bc1e0a948
+MacroID=b16443ba-08dc-4930-a3df-d1238ceb2a84
 Description=Autoheal_5P
 Enable=1
 AutoRun=0
@@ -24,18 +24,19 @@ SetupOCXFile=
 
 [Script]
 // -----------Parameters
-hwnd0 = 262952
-hwnd1 = 787410
-hwnd2 = 197610
-hwnd3 = 1180498
-hwnd4 = 132010
-hwnd5 = 790148
-ehwnd = 265174
+hwnd0 = 328468
+hwnd1 = 131862
+hwnd2 = 264830
+hwnd3 = 1245456
+hwnd4 = 3213890
+hwnd5 = 985644
+ehwnd = 68504
 
-num_players = 4
+num_players = 5
 
 watchdog = hwnd1
-healer = hwnd1
+healer = hwnd2
+repairman = hwnd2
 // ----------End of Parameters
 
 
@@ -50,6 +51,11 @@ fight_state = 64
 // Loading memory for food exchange
 Water_add = &H0111FF5A
 Food_add = &H0111FF5C
+ShipHP_add = &H0111FF62
+ShipMaxHP_add = &H011202F0
+MP_add = &H0111FF48
+Material_add = &H0111FF60
+TeamMember_add = &H0112059C
 
 Dim PlayerID(4)
 PlayerID(0) = 6031955
@@ -75,6 +81,8 @@ Food_add = &H0111FF5C
 TargetID_add = &H0111AEA4
 
 // Test Area
+
+
 // End of Test Area
 
 
@@ -82,7 +90,7 @@ TargetID_add = &H0111AEA4
 For i = 0 To (num_players - 1)
 	If i = 0 Then 
 		Call Supply(PlayerHWND(i), "saved")
-	Else Call Supply(PlayerHWND(i), "saved")
+	Else Call Supply(PlayerHWND(i),  "max")
 	End If
 		
 	
@@ -101,8 +109,37 @@ Call Plugin.Bkgnd.KeyPress(watchdog, 113)
 cond = Check_Arrival
 loopcounter = 0
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1 
-    TracePrint loopcounter
+	// Check if the game is loading
+	Rem StillLoading
+	blackscreen = check_blackscreen(hwnd1)
+	If blackscreen = - 1  Then // -1 is True
+		Delay 1000
+		loopcounter = loopcounter + 1
+		Goto StillLoading
+	End If
+	// End of check
+	
     Autohealv3 
+    
+    
+    Check_Windows (hwnd0)
+    
+    If Plugin.Memory.Read16Bit(hwnd1, TeamMember_add) < 5 Then 
+		Call Disconnect(hwnd1)
+		Call Disconnect(hwnd2)
+		Call Disconnect(hwnd3)
+		Call Disconnect(hwnd4)
+		Call Disconnect(hwnd5)
+	End If
+	
+    
+    // Only Repair when there is material
+    Materials = Plugin.Memory.Read16Bit(repairman, Material_add)
+	If Materials > 0 Then 
+		TracePrint "Repair"
+		Check_ShipHP(repairman)	
+	End If
+    
     cond = Check_Arrival
 	If loopcounter = 30 or loopcounter = 60 Then 
 		TracePrint "Checking Food"
@@ -114,7 +151,6 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
     	TracePrint "Checking Food"
     	Call Dist_Resources	
         Call Refresh_Nav
-        Call BringWinOnTop(hwnd1)
         // Keep player 2,3,4 active
         //Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10 
         //Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10
@@ -131,10 +167,12 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
 		
     End If
     Delay 1000
-    loopcounter = loopcounter+1
+    loopcounter = loopcounter + 1
+    TracePrint loopcounter
 Wend
+Call SendAlert("Arrived")
 
-
+//--------------------------End of Program----------------------------------
 Function Check_Arrival
     Dim cond(3)
     color1 = Plugin.BkgndColor.GetPixelColor(hwnd1,629,330)
@@ -204,8 +242,8 @@ Sub Autohealv3
 		Next
 		Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun	
 		// End checking sick	
-		TracePrint "Someone is sick"
-		Call sendAlert("Someone is sick")	
+//		TracePrint "Someone is sick"
+//		Call sendAlert("Someone is sick")	
 	End If
 
 	
@@ -227,8 +265,8 @@ Sub Autohealv3
     		Call Plugin.Bkgnd.KeyPress(healer, 113)//Press F2
 		Next
 		Call Plugin.Bkgnd.KeyPress(healer, 121)//Press F10 again to cancael meun		
-		TracePrint "Someone has mouse"
-		Call sendAlert("Someone has mouse")
+//		TracePrint "Someone has mouse"
+//		Call sendAlert("Someone has mouse")
 	End If
 	
 	// No one has mouse
@@ -251,8 +289,8 @@ Sub Autohealv3
     		Call Plugin.Bkgnd.KeyPress(healer, 116)//Press F5		
 		Next
 		Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun	
-		TracePrint "Someone is on fire"
-		Call sendAlert("Someone is on fire")
+//		TracePrint "Someone is on fire"
+//		Call sendAlert("Someone is on fire")
 	End If
 
 	Call UPDATE_PLAYER_STATE(state_add)
@@ -271,17 +309,17 @@ Sub Autohealv3
     		Call Plugin.Bkgnd.KeyPress(healer, 115)//Press F4		
 		Next
 		Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun	
-		TracePrint "Someone is rebelling"
-		Call sendAlert("Someone is rebelling")		
+//		TracePrint "Someone is rebelling"
+//		Call sendAlert("Someone is rebelling")		
 	End If	
 		
 	
 	Call UPDATE_PLAYER_STATE(state_add_2)
-	TracePrint player_state_value(0)
-	TracePrint player_state_value(1)
-	TracePrint player_state_value(2)
-	TracePrint player_state_value(3)
-	TracePrint player_state_value(4)
+//	TracePrint player_state_value(0)
+//	TracePrint player_state_value(1)
+//	TracePrint player_state_value(2)
+//	TracePrint player_state_value(3)
+//	TracePrint player_state_value(4)
 	counter = 0
 	For i = 0 To num_players - 1
 		If player_state_value(i) = fight_state or player_state_value(i) = rebel_state Then 
@@ -297,8 +335,8 @@ Sub Autohealv3
     		Call Plugin.Bkgnd.KeyPress(healer, 115)//Press F4		
 		Next
 		Call Plugin.Bkgnd.KeyPress(healer, 121) //Press F10 again to cancael meun	
-		TracePrint "Someone is fighting"
-		Call sendAlert("Someone is fighting")		
+//		TracePrint "Someone is fighting"
+//		Call sendAlert("Someone is fighting")		
 	End If	
 End Sub
 
@@ -587,14 +625,40 @@ Sub reconnect
 	End If
 	
 	Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
-	If Player2_ol_value = 0 or Player3_ol_value = 0 or Player4_ol_value = 0 or Player5_ol_value = 0 Then 
+	If Player2_ol_value = 0 Then 
 		SendAlert( "Player2,3,4,5 reconnected")
-		Call Login(hwnd2, 0)
+		Call Login(hwnd2, 1)
 		TracePrint "Player2,3,4,5 reconnected"
 		Delay 500
 		StartNavi
 	End If
 	
+	Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
+	If  Player3_ol_value = 0 Then 
+		SendAlert( "Player2,3,4,5 reconnected")
+		Call Login(hwnd3, 1)
+		TracePrint "Player2,3,4,5 reconnected"
+		Delay 500
+		StartNavi
+	End If
+	
+	Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
+	If  Player4_ol_value = 0 Then 
+		SendAlert( "Player2,3,4,5 reconnected")
+		Call Login(hwnd4, 1)
+		TracePrint "Player2,3,4,5 reconnected"
+		Delay 500
+		StartNavi
+	End If		
+
+	Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
+	If  Player5_ol_value = 0 Then 
+		SendAlert( "Player2,3,4,5 reconnected")
+		Call Login(hwnd5, 1)
+		TracePrint "Player2,3,4,5 reconnected"
+		Delay 500
+		StartNavi
+	End If		
 
 End Sub
 
@@ -633,11 +697,11 @@ Sub Login(hwnd, pass)
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Confirm disconnect
 	Delay 300
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Confirm replay
-	Delay 3800
+	Delay 4000
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Start login page
 	Delay 500	
 	Call Plugin.Bkgnd.LeftClick(hwnd, 401, 375)
-	Delay 3500
+	Delay 4000
 	Call Plugin.Bkgnd.LeftClick(hwnd, 422, 484)
 	Delay 500
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
@@ -673,5 +737,81 @@ Sub Login(hwnd, pass)
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) //Select servers
 	Delay 3500
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Select character
+
+End Sub
+
+
+Sub Check_ShipHP(repairman)
+	ShipHP = UPDATE_PLAYER_16Bit(ShipHP_add)
+	ShipMaxHP = UPDATE_PLAYER_16Bit(ShipMaxHP_add)
+	
+	For i = 0 To (num_players - 1)
+		HP_pencentage = ShipHP(i) / ShipMaxHP(i)
+//		TracePrint i
+//		TracePrint ShipHP(i)
+//		TracePrint ShipMaxHP(i)
+		TracePrint HP_pencentage
+		If HP_pencentage < 0.7 Then
+            Call RepairShip(repairman)
+        End If
+	Next
+End Sub
+
+Sub RepairShip(repairman)
+    Call Plugin.Bkgnd.KeyPress(repairman, 121)//Press F10 
+    For j = 0 To 5 
+        Delay 1000
+        Call Plugin.Bkgnd.KeyPress(repairman, 119) //Press F8
+    Next
+       Call Plugin.Bkgnd.KeyPress(repairman, 121) //Press F10 again to cancael meun	
+End SUb
+
+Sub SupplyMP(hwnd)
+	MP_val = Plugin.Memory.Read32Bit(hwnd, MP_add)
+	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+	
+	
+	While MP_val < 100
+		// Convert wheat to powder
+		Delay 100
+		Call Plugin.Bkgnd.KeyPress(hwnd, 112)// Eat Food
+		MP_val = Plugin.Memory.Read32Bit(hwnd, MP_add)
+	Wend	
+End Sub
+
+
+Function check_blackscreen(hwnd)
+	color1 = Plugin.BkgndColor.GetPixelColor(hwnd, 10, 10)
+	color2 = Plugin.BkgndColor.GetPixelColor(hwnd, 400, 200)
+	color3 = Plugin.BkgndColor.GetPixelColor(hwnd, 700, 500)
+	
+	If color1 = 0 and color2 = 0 and color3 = 0 Then 
+		check_blackscreen = True
+	Else 
+		check_blackscreen = False
+	End If
+	
+End Function
+
+Function Check_Windows(hwnd)
+	sWindow = Plugin.Window.IsWindow(hwnd)
+	TracePrint sWindow
+	If sWindow = 0 Then 
+		Check_Windows = 0// Windows dead
+		SendAlert("Holy Navi is dead")
+	ElseIf sWindow = 1 Then
+		Check_Windows = 1 // Windows fine
+	End If
+End Function
+
+Sub Disconnect(hwnd)
+	// Stop Ship
+	Call Plugin.Bkgnd.LeftClick(hwnd, 781, 580)
+		
+	Call Plugin.Bkgnd.LeftClick(hwnd, 767, 18)
+	Delay 500
+	Call Move_Click_v2(hwnd, 732, 135)
+	Delay 200
+	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
 
 End Sub

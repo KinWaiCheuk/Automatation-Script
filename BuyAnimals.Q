@@ -8,13 +8,13 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=98ec5482-fd93-4b21-bbaa-8dd7b76dff3d
-Description=BuyAnimal_v2
-Enable=1
+MacroID=4d3bda60-989f-4b19-91aa-4ea1a48f9883
+Description=BuyAnimals
+Enable=0
 AutoRun=0
 [Repeat]
 Type=0
-Number=500
+Number=200
 [SetupUI]
 Type=2
 QUI=
@@ -25,15 +25,12 @@ SetupOCXFile=
 [Script]
 // Loading Memory
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 330226
-hwnd1 = 131862
-hwnd2 = 60951206
-hwnd3 = 1969450
-hwnd4 = 42012124
-ehwnd = 68504
-
-TraderID = 25165979
-PorterID = 25165971
+hwnd0 = 852846
+hwnd1 = 721866
+hwnd2 = 265198
+hwnd3 = 132956
+hwnd4 = 10818044
+ehwnd = 983968
 
 sick_state = 2
 sick_state_2 = 1
@@ -44,7 +41,6 @@ fire_state = 16
 // Loading memory for food exchange
 Water_add = &H0111FF5A
 Food_add = &H0111FF5C
-Day_add = &H011240E4
 
 Dim PlayerID(3)
 PlayerID(0) = 6031955
@@ -107,98 +103,67 @@ DYe = MyArraye(1)
 // -------------------------
 
 //--------Test-------------------
-
-
-
+Sub Activate_Skill(hwnd)
+	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+	Delay 1000
+	Call Plugin.Bkgnd.KeyPress(hwnd, 119)
+	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+End Sub
 
 
 //--------End of Test-------------
 
 // ------- Start of Prog----------
 
-Delay 2000
-Call SailOut
-Delay 1500
-TracePrint "Going back to A"
-moveDirection = "A"
-Call Choose_Navi_Path("To_Animal_A_v2")
-Call StartNavi
-
-//Activate_Skill(hwnd1)
-
-cond = Check_Arrival(DX1, DY1)
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-    cond = Check_Arrival(DX1, DY1)
-    Call CheckOnline_onsea(moveDirection)
-    
-    day_num = Int(Plugin.Memory.Read32Bit(hwnd1, Day_add))
-	If day_num > 1 or Check_Windows(hwnd0) = 0 Then 
-		SendAlert ("It get sucked on sea")
-		Call StopNavi
-		Call Move_Click_v2(hwnd1,782,585)
-		Call Disconnect(hwnd1)
-		
-		Call ExitScript
-	End If
-
-    counter = counter+1
-Wend
-
-Delay 1500
-
-
-
 Call EnterPort_LA
-Delay 800
 
 
-Call Leaving(hwnd1, 628, 177)
-Delay 4000
 
-TracePrint "Going to B"
+Call Leaving(hwnd1, 630, 178)
+Delay 3000
+
 
 Call Supply(DX1, DY1, hwnd1)
-// Call Supply(DX2, DY2, hwnd2)
-Delay 1500
+Call Supply(DX2, DY2, hwnd2)
+Delay 1000
 Call SailOut
-Delay 5500
-Call Choose_Navi_Path("To_Animal_B_v2")
-moveDirection = "B"
+Delay 3000
+Call Choose_Navi_Path("To_Animal_B")
 Call StartNavi
 Delay 1000
-//Activate_Skill (hwnd1)
+Activate_Skill (hwnd1)
 
 cond = Check_Arrival(DX1, DY1)
 counter = 0
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
 	cond = Check_Arrival(DX1, DY1)
-	Call CheckOnline_onsea(moveDirection)
-	
-	day_num = Plugin.Memory.Read32Bit(hwnd1, Day_add)
-	If day_num > 1  or Check_Windows(hwnd0) = 0 Then 
-		SendAlert ("It get sucked on sea")
-		Call StopNavi
-		Call Move_Click_v2(hwnd1,782,585)
-		Call Disconnect(hwnd1)
-		
-		Call ExitScript
-	End If	
-	
-	If counter = 10 Then 
+	//Call CheckOnline_onsea
+	If counter = 30 Then 
 		Delay 1000
 		// Produce_FOOD (hwnd)
 		Call SupplyMP(hwnd1)
-	End If
-	
-	If counter = 250 Then 
-		SendAlert("Stuck inside city")
 	End If
 	counter = counter + 1
 	Delay 1000
 Wend
 
+Delay 2000
+Call SailOut
+Delay 1000
+TracePrint "Going back to A"
+Call Choose_Navi_Path("To_Animal_A")
+Call StartNavi
+
+Activate_Skill(hwnd1)
 
 
+cond = Check_Arrival(DX1, DY1)
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+    cond = Check_Arrival(DX1, DY1)
+    //Call CheckOnline_onsea
+
+    counter = counter+1
+Wend
 
 
 
@@ -208,7 +173,7 @@ Wend
 
 Sub EnterPort_LA
     BringWinOnTop (hwnd1)
-    Delay 500
+    Delay 1500
     Call Plugin.Bkgnd.LeftClick(hwnd1, 649, 383) //Click Enter
 
     Delay 1900
@@ -221,12 +186,12 @@ Sub EnterPort_LA
     Next
 	
     Rem Loaded_City
-    Delay 2500
+    Delay 3000
     Call OpenMap
     Delay 800
     //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
-    Call Plugin.Bkgnd.LeftClick(hwnd1, 577, 162)
-    Delay 5600
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 579, 161)
+    Delay 8000
 	
     Call TradingA(DX1, DY1, hwnd1)
     MoveTo DX1+ 361, DY1 + 100
@@ -254,13 +219,11 @@ End Sub
 
 Sub TradingA(DX, DY, hwnd)
 	Call Sell_Extra(hwnd)
-	TracePrint "Item sold"
-	Delay 800
-    Call FindTrader(hwnd, TraderID)
-    TracePrint "Item bought" 
-    Delay 800
+	Delay 1000
+    Call FindTrader(hwnd, 25167546)
+    Delay 1000
     Call BuyCast(DX, DY, hwnd)
-    Delay 800
+    Delay 1000
 	
 	// Call Plugin.Bkgnd.KeyPress(hwnd, 121) // Cancel Skill
 
@@ -270,24 +233,21 @@ Sub TradingA(DX, DY, hwnd)
 End Sub
 
 Sub FindTrader(hwnd, target_ID)
-	TargetID = Int(Plugin.Memory.Read32Bit(hwnd, TargetID_add))
-	If TargetID = target_ID Then 
-        Goto Found
-    End If
     KeyDown "Esc", 1
     For 10 // This loop is for rotating 90deg for 3 times
         BringWinOnTop(hwnd)
-        For 12
+        For 5
             KeyPress 9, 1
             TargetID = Int(Plugin.Memory.Read32Bit(hwnd, TargetID_add))
             Delay 100
             If TargetID = target_ID Then 
                 Goto Found
             End If
-//            TracePrint "TargetID " + Cstr(TargetID)
-//            TracePrint "target_ID " + Cstr(target_ID)
+            TracePrint "TargetID"
+            TracePrint TargetID
+            TracePrint "target_ID"
+            TracePrint target_ID
         Next
-        SendAlert("Cannot find the target")
         Delay 500
         KeyDown 17,1
         KeyDown 39,1
@@ -298,47 +258,21 @@ Sub FindTrader(hwnd, target_ID)
     	
     Next
     Rem Found
-    TracePrint "Found" + Cstr(TargetID)
     KeyUp "Esc", 1
-	Delay 200
+
     KeyPress 13, 1//Talk
 End Sub
 
 Sub BuyCast(DX, DY, hwnd)
     Call BringWinOnTop(hwnd)
     Call Plugin.Bkgnd.LeftClick(hwnd, 640, 357) // Option = Buy
-	' 1st -> 125
-	' 2nd -> 190
-	' 3rd -> 255
-	' 4th -> 300
 
-    Delay 2500
-	
-//	Call Move_Click_v2(hwnd, 165, 125)// Buy the 3st target product
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-//    Delay 300
-//	
-//    Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-//    Delay 300	
-	
+    Delay 1500
 	
     // Wheel down
     Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
-    Delay 50
+    Delay 800
     Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
-    
-    Delay 100
-    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
-    Delay 50
-    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
-
 		
 	
     Call Move_Click_v2(hwnd, 165, 257)// Buy the 3st target product
@@ -346,20 +280,20 @@ Sub BuyCast(DX, DY, hwnd)
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-    Delay 300
+    Delay 1500
     
     Call Move_Click_v2(hwnd, 165, 309)// Buy the 3st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-    Delay 300
+    Delay 200
 	
 	
     Call Plugin.Bkgnd.LeftClick(hwnd, 428, 304)// Bargain
-    Delay 400
+
+    Delay 900
     Call Plugin.Bkgnd.LeftClick(hwnd, 647, 423)// Confirm	
-    Delay 400
 
 	
 End Sub
@@ -451,11 +385,11 @@ End Sub
 
 
 Sub Sell_Extra(hwnd)
-	Call FindTrader(hwnd1, TraderID)
-	Delay 1500
+	Call FindTrader(hwnd1, 25167546)
+	Delay 1000
 	// Sell suplus Food
 	Call Plugin.Bkgnd.LeftClick(hwnd, 684, 365)
-	Delay 1500
+	Delay 2000
 	
 //	// Wheel down
 //	rubbish = "C:\Users\RavenCheuk\Desktop\HolyNavi_145c\Pictures\Cannon.bmp"
@@ -475,10 +409,9 @@ Sub Sell_Extra(hwnd)
 	Call Plugin.Bkgnd.LeftClick(hwnd, 304, 81) // Click all
 	Delay 400
 	Call Plugin.Bkgnd.LeftClick(hwnd, 465, 334) // Bargain
-	Delay 1000
+	Delay 600
 	Call Plugin.Bkgnd.LeftClick(hwnd, 657, 421)// Confirm
 	Delay 400
-	TracePrint "Confirm"
 
 End Sub
 
@@ -501,10 +434,10 @@ Sub Leaving(hwnd, X, Y)
 	// Call Move_Click_v2(hwnd, X, Y)
 	Call Plugin.Bkgnd.LeftClick(hwnd, X, Y) // Click the PortOfficer Location
 //	TracePrint "Clicked"
-	Delay 6000
-	Call FindTrader(hwnd, PorterID)
-	Delay 2000
-	Call Plugin.Bkgnd.LeftClick(hwnd, 646,363)
+	Delay 4000
+	Call FindTrader(hwnd, 25167545)
+	Delay 1000
+	Call Move_Click_v2(hwnd, 646,363)
 		
 End Sub
 
@@ -515,20 +448,6 @@ Sub Choose_Navi_Path(path)
 	SayString path
 	KeyPress "Enter", 1
 End Sub
-
-Sub StopNavi
-
-	Call Plugin.Window.Active(hwnd0)
-	Delay 300
-	Call Plugin.Bkgnd.KeyPress(hwnd0, 121)//F10
-	Delay 300
-	Call Plugin.Bkgnd.KeyPress(hwnd0, 83)//S
-	Delay 300
-	Call Plugin.Bkgnd.KeyPress(hwnd0, 80)//R
-	Delay 500
-
-End Sub
-
 Sub StartNavi
 	Call Plugin.Window.Active(hwnd0)
 	Delay 300
@@ -609,140 +528,11 @@ End Sub
 Sub SailOut
 	Call BringWinOnTop(hwnd1)
 	Call Plugin.Bkgnd.KeyPress(hwnd1, 27)
-	Delay 500
-	
-	Call Plugin.Bkgnd.LeftClick(hwnd1, 640, 360) // Select sailout
-	Delay 1500
-	
-	Call Plugin.Bkgnd.LeftClick(hwnd1, 549, 398) // confirm
-	Delay 800
-End Sub
-
-// Anti offline code 
-
-Sub reconnect
-	Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
-	If Player1_ol_value = 0 Then 
-		SendAlert("Player disconnected")
-		Call Login(hwnd1, 0)
-		TracePrint "Player1 reconnected"
-	End If
-	
-
-End Sub
-
-Sub UPDATE_PLAYER_OL_STATE(state_add)
-	Player1_ol_value = Int(Plugin.Memory.Read32Bit(hwnd1, state_add))
-End Sub
-
-Sub CheckOnline_onsea(moveDirection)
-	Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
-	If Player1_ol_value = 0 Then
-		Call reconnect
-		Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
-		Delay 1000
-		If moveDirection = "A" Then 
-			Call Choose_Navi_Path("To_Animal_A_v21")
-			SendAlert ("Reactivate the destination to A")
-			Delay 500
-			Call StartNavi
-		ElseIf moveDirection = "B" Then
-			Call Choose_Navi_Path("To_Animal_B_v2")
-			SendAlert ("Reactivate the destination to B")
-			Delay 500
-			Call StartNavi
-		End If
-		
-		
-	End If
-	
-End Sub
-
-Sub SendAlert(str)
-	//BringWinOnTop (ehwnd)
-	//Call Move_Click(DXe, DYe, 74, 222)// Create a new email
-	Call Plugin.Bkgnd.LeftClick(ehwnd, 455, 884)
-	Delay 500
-	Call Plugin.Bkgnd.SendString(ehwnd, str)
-	Call Plugin.Bkgnd.KeyPress(ehwnd, 13) // Send Message
-
-	//MoveTo DXe + 469, DYe + 1003
-	//LeftClick 1
-	//ExitScript
-End Sub
-
-Sub Login(hwnd, pass)
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Confirm disconnect
-	Delay 300
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Confirm replay
-	Delay 3800
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Start login page
-	Delay 500	
-	Call Plugin.Bkgnd.LeftClick(hwnd, 401, 375)
-	Delay 3500
-	Call Plugin.Bkgnd.LeftClick(hwnd, 422, 484)
-	Delay 500
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-	Delay 500
-	Call Plugin.Bkgnd.KeyPress(hwnd, 9)
-	Delay 200
-	If pass = 0 Then 
-		Call Plugin.Bkgnd.KeyPress(hwnd, 50)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 56)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 57)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 53)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 53)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 49)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 52)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 57)
-	End If
-	
-	If pass = 1 Then 
-		Call Plugin.Bkgnd.KeyPress(hwnd, 51)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 53)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 50)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 56)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 50)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 51)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 54)
-		Call Plugin.Bkgnd.KeyPress(hwnd, 50)
-	End If
-	
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Semd Password
-	Delay 100
-	Call Plugin.Bkgnd.LeftClick(hwnd, 668, 556) // Agree terms
-	Delay 100
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13) //Select servers
-	Delay 5000
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Select character
-
-End Sub
-
-Sub Activate_Skill(hwnd)
-	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+	//Call Move_Click_v2(hwnd1, 640, 360)
+	Call Plugin.Bkgnd.LeftClick(hwnd1, 640, 360)
 	Delay 1000
-	Call Plugin.Bkgnd.KeyPress(hwnd, 119)
-	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
-End Sub
-
-Sub Disconnect(hwnd)
-	// Stop Ship
-	Call Plugin.Bkgnd.LeftClick(hwnd, 781, 580)
-		
-	Call Plugin.Bkgnd.LeftClick(hwnd, 767, 18)
+	
+	//Call Move_Click_v2(hwnd1, 549, 398)
+	Call Plugin.Bkgnd.LeftClick(hwnd1, 549, 398)
 	Delay 500
-	Call Move_Click_v2(hwnd, 732, 135)
-	Delay 200
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-
 End Sub
-
-Function Check_Windows(hwnd)
-sWindow = Plugin.Window.IsWindow(hwnd)
-If sWindow = 0 Then 
-	Check_Windows = 0// Windows dead
-	SendAlert("Holy Navi is dead")
-ElseIf sWindow = 1 Then
-	Check_Windows = 1 // Windows fine
-End If
-End Function
