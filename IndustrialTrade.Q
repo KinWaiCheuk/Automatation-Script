@@ -1,0 +1,650 @@
+[General]
+SyntaxVersion=2
+BeginHotkey=121
+BeginHotkeyMod=0
+PauseHotkey=0
+PauseHotkeyMod=0
+StopHotkey=123
+StopHotkeyMod=0
+RunOnce=1
+EnableWindow=
+MacroID=0062ed2a-f53f-4ef3-8df5-1dec5818ff11
+Description=IndustrialTrade
+Enable=0
+AutoRun=0
+[Repeat]
+Type=0
+Number=200
+[SetupUI]
+Type=2
+QUI=
+[Relative]
+SetupOCXFile=
+[Comment]
+
+[Script]
+// Loading Memory
+Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
+hwnd0 = 262566
+hwnd1 = 10226952
+hwnd2 = 2952482
+hwnd3 = 200124
+hwnd4 = 1903550
+ehwnd = 134132
+
+sick_state = 2
+sick_state_2 = 1
+mouse_state = 8
+fire_state = 16
+
+
+// Loading memory for food exchange
+Water_add = &H0111FF5A
+Food_add = &H0111FF5C
+
+Dim PlayerID(3)
+PlayerID(0) = 6031955
+PlayerID(1) = 6033147
+PlayerID(2) = 6034843
+PlayerID(3) = 6221865
+
+Dim PlayerHWND(3)
+PlayerHWND(0) = hwnd1
+PlayerHWND (1) = hwnd2
+PlayerHWND (2) = hwnd3
+PlayerHWND(3) = hwnd4
+
+//Call Plugin.Window.Move(Hwnd1, 100, 100)
+
+state_add = &H0111FEA4
+Water_add = &H0111FF5A
+Food_add = &H0111FF5C
+TargetID_add = &H0111AEA4
+
+sick_state = 2
+mouse_state = 8
+fire_state = 16
+//Call Plugin.Window.Move(hwnd1, 100, 100)
+VBS state_add=&H0111FEA4
+MP_add = &H0111FF48
+OLstatus3_add = &H0112412C
+OLstatus1_add = &H0111FDEC
+
+CityB_Trader = 25167282
+CityA_Trader = 25167772
+
+s0 = Plugin.Window.GetClientRect(hwnd0)
+s1 = Plugin.Window.GetClientRect(hwnd1)
+s2 = Plugin.Window.GetClientRect(hwnd2)
+s3 = Plugin.Window.GetClientRect(hwnd3)
+s4 = Plugin.Window.GetClientRect(hwnd4)
+es = Plugin.Window.GetClientRect(ehwnd)
+MyArray0 = Split(s0, "|", -1, 1)
+MyArray1 = Split(s1, "|", -1, 1)
+MyArray2 = Split(s2, "|", -1, 1)
+MyArray3 = Split(s3, "|", -1, 1)
+MyArray4 = Split(s4, "|", - 1 , 1)
+MyArraye = Split(es, "|", - 1 , 1)
+
+DX0 = MyArray0(0)
+DY0 = MyArray0(1)
+
+DX1 = MyArray1(0)
+DY1 = MyArray1(1)
+
+DX2 = MyArray2(0)
+DY2 = MyArray2(1)
+
+DX3 = MyArray3(0)
+DY3 = MyArray3(1)
+
+DX4 = MyArray4(0)
+DY4 = MyArray4(1)
+
+DXe = MyArraye(0)
+DYe = MyArraye(1)
+// -------------------------
+
+//--------Test-------------------
+Sub Activate_Skill(hwnd)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+    Delay 1000
+    Call Plugin.Bkgnd.KeyPress(hwnd, 119)	
+End Sub
+
+Goto TestArea
+
+Rem TestArea
+
+
+//--------End of Test-------------
+
+// ------- Start of Prog----------
+
+
+Call Supply(DX1, DY1, hwnd1)
+Delay 1000
+Call SailOut
+Delay 3000
+Call Choose_Navi_Path("To_CastB")
+Call StartNavi
+Delay 1000
+
+Activate_Skill (hwnd1)
+Call Plugin.Bkgnd.KeyPress(hwnd1, 121)
+cond = Check_Arrival(DX1, DY1)
+counter = 0
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+    cond = Check_Arrival(DX1, DY1)
+    //Call CheckOnline_onsea
+    If counter = 30 Then 
+        //Produce_Cannon (hwnd1)
+        Delay 1000
+        // Produce_FOOD (hwnd)
+	
+	
+	
+        Call SupplyMP(hwnd1)
+    End If
+    counter = counter + 1
+    Delay 1000
+Wend
+
+Call EnterPort_LB
+Call Leaving(hwnd1, 488, 280, 25167280)
+
+Delay 4000
+Call SailOut
+Delay 1000
+TracePrint "Going back to A"
+Call Choose_Navi_Path("To_CastA")
+Call StartNavi
+
+Activate_Skill(hwnd1)
+
+cond = Check_Arrival(DX1, DY1)
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+    cond = Check_Arrival(DX1, DY1)
+    //Call CheckOnline_onsea
+
+    counter = counter+1
+Wend
+
+Call EnterPort_LA
+Call Leaving(hwnd1, 393, 250, 25167773)
+Delay 3000
+
+//Call reconnect
+// ---------------End of Prog
+
+
+Sub EnterPort_LA
+    BringWinOnTop (hwnd1)
+    Delay 1500
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 649, 383) //Click Enter
+
+    Delay 1900
+    For 10
+        IfColor DX1+641,DY1+385,"000000)",0 Then
+            Delay 1000
+        Else    
+            Goto Loaded_City
+        End If
+    Next
+	
+    Rem Loaded_City
+    Delay 3000
+    Call OpenMap
+    Delay 800
+    //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 453, 181)
+    Delay 8000
+	
+    Call TradingA(DX1, DY1, hwnd1)
+    MoveTo DX1+ 361, DY1 + 100
+    Delay 1000
+    //    RightClick 1
+    //    Delay 800
+    //    RightClick 1
+    //    KeyDown "Up", 1
+    //    Delay 800
+    //    KeyUp "Up", 1
+    
+
+
+End Sub
+
+Sub EnterPort_LB
+    BringWinOnTop (hwnd1)
+    Delay 1500
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 649, 383) //Click Enter
+
+    Delay 1900
+    For 10
+        IfColor DX1+641,DY1+385,"000000)",0 Then
+            Delay 1000
+        Else    
+            Goto Loaded_City
+        End If
+    Next
+	
+    Rem Loaded_City
+    Delay 3000
+    Call OpenMap
+    Delay 800
+    //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 467, 170)
+    Delay 17000
+	
+    Call Sell_All(hwnd1, CityB_Trader)
+    Delay 1000
+    Call FindTrader(hwnd1, CityB_Trader)
+    Delay 1000
+    Call BuyInd_B(DX, DY, hwnd1)
+    Delay 1000
+    
+    MoveTo DX1+ 361, DY1 + 100
+    Delay 1000
+    //    RightClick 1
+    //    Delay 800
+    //    RightClick 1
+    //    KeyDown "Up", 1
+    //    Delay 800
+    //    KeyUp "Up", 1
+    
+
+
+End Sub
+
+
+Sub BringWinOnTop(hwnd)
+    Call Plugin.Window.Active(hwnd)
+    Call Plugin.Window.Restore(hwnd)
+End Sub
+
+Sub OpenMap
+    Call Plugin.Bkgnd.KeyPress(hwnd1, 112)
+End Sub
+
+Sub TradingA(DX, DY, hwnd)
+	
+    Call Sell_All(hwnd, CityA_Trader)
+    Delay 1000
+    Call FindTrader(hwnd, CityA_Trader)
+    Delay 1000
+    Call BuyCast(DX, DY, hwnd)
+    Delay 1000
+	
+    // Call Plugin.Bkgnd.KeyPress(hwnd, 121) // Cancel Skill
+
+	
+	
+
+End Sub
+
+Sub FindTrader(hwnd, target_ID)
+    KeyDown "Esc", 1
+    For 10 // This loop is for rotating 90deg for 3 times
+        BringWinOnTop(hwnd)
+        For 5
+            KeyPress 9, 1
+            TargetID = Int(Plugin.Memory.Read32Bit(hwnd, TargetID_add))
+            Delay 100
+            If TargetID = target_ID Then 
+                Goto Found
+            End If
+            TracePrint "TargetID"
+            TracePrint TargetID
+            TracePrint "target_ID"
+            TracePrint target_ID
+        Next
+        Delay 500
+        KeyDown 17,1
+        KeyDown 39,1
+        Delay 1500
+        KeyUp 39,1
+        KeyUp 17,1
+        Delay 500
+    	
+    Next
+    Rem Found
+    KeyUp "Esc", 1
+
+    KeyPress 13, 1//Talk
+End Sub
+
+Sub BuyCast(DX, DY, hwnd)
+    Call BringWinOnTop(hwnd)
+    Call Plugin.Bkgnd.LeftClick(hwnd, 640, 357) // Option = Buy
+
+    Delay 800
+	
+    // Wheel down
+    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
+    Delay 400
+    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
+		
+	
+    Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 200
+    
+    Call Move_Click_v2(hwnd, 192, 247)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 200    
+    
+    Call Move_Click_v2(hwnd, 165, 309)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 200
+	
+	
+    Call Plugin.Bkgnd.LeftClick(hwnd, 428, 304)// Bargain
+
+    Delay 900
+    Call Plugin.Bkgnd.LeftClick(hwnd, 647, 423)// Confirm	
+
+	
+End Sub
+
+Sub BuyInd_B(DX, DY, hwnd)
+    Call BringWinOnTop(hwnd)
+    Call Plugin.Bkgnd.LeftClick(hwnd, 640, 357) // Option = Buy
+
+    Delay 800
+	
+    // Wheel down
+    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
+    Delay 100
+    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
+		
+	
+    Call Move_Click_v2(hwnd, 188, 239)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 200
+    
+    Call Move_Click_v2(hwnd, 180, 308)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 200
+	
+	
+    Call Plugin.Bkgnd.LeftClick(hwnd, 428, 304)// Bargain
+
+    Delay 900
+    Call Plugin.Bkgnd.LeftClick(hwnd, 647, 423)// Confirm	
+
+	
+End Sub
+
+Sub Move_Click_v2(hwnd, X, Y)
+    s = Plugin.Window.GetClientRect(hwnd)
+    MyArray = Split(s, "|", -1, 1)
+    DX = MyArray(0)
+    DY = MyArray(1)
+	
+    MoveTo DX + X, DY + Y//Move to supply button
+    Delay 250
+    LeftClick 1
+End Sub
+
+
+Sub Produce_FOOD(hwnd)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+
+    // Convert wheat to powder
+    Delay 1000
+    Call Plugin.Bkgnd.KeyPress(hwnd, 115)// Open book
+    Delay 1350
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Enter
+    Delay 1000
+	
+    Call Plugin.Bkgnd.LeftClick(hwnd, 457, 374) // Click Production
+    Delay 1000
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107) // Produce MAX
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Enter
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)// Removing Prompt
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)// Removing Prompt
+    Delay 200
+	
+    TracePrint "First Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+    Delay 1000
+    TracePrint "Second Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+    Delay 1000
+    TracePrint "Third Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+    Delay 1000
+    TracePrint "Fourth Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27) // Exit Meun
+End Sub
+
+
+Sub Produce_Cannon(hwnd)
+    // You don't need this one, since you are already on sea with skill activated
+    // Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+
+    // Convert wheat to powder
+    Delay 1000
+    Call Plugin.Bkgnd.KeyPress(hwnd, 114)// Open book
+    Delay 1350
+    Call Plugin.Bkgnd.KeyPress(hwnd, 40)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 40)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 40)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 40)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 40)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 1000
+	
+    Call Plugin.Bkgnd.LeftClick(hwnd, 457, 374) // Click Production
+    Delay 1000
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107) // Produce MAX
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 200
+    TracePrint "First Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+    Delay 1000
+    TracePrint "Second Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+    Delay 1000
+    TracePrint "Third Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+    Delay 1000
+    TracePrint "Fourth Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)// Exit Meun
+    Delay 1000
+    TracePrint "Fifth Esc"
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27) // Exit Meun
+End Sub
+
+
+Sub Sell_Extra(hwnd)
+    Call FindTrader(hwnd1, 25167772)
+    Delay 1000
+    // Sell suplus Food
+    Call Plugin.Bkgnd.LeftClick(hwnd, 684, 365)
+    Delay 2000
+	
+    // Wheel down
+    rubbish = "C:\Users\RavenCheuk\Desktop\HolyNavi_145c\Pictures\Cannon.bmp"
+    XY = Plugin.Bkgnd.FindMultiPicEx(hwnd, 69, 103, 122, 274, rubbish, 0, 0.5)
+    If XY = "-1,-1" Then 
+        TracePrint "Pic not found"
+        Goto Pic_not_found	
+    End If
+	
+    // Breaking X and Y coordinates
+    iZB = InStr(XY, ",")
+    X = CLng(Left(XY, iZB - 1))
+    Y = CLng(Right(XY, Len(XY) - iZB))
+	
+
+    Call BringWinOnTop(hwnd)
+    Call Move_Click_v2(hwnd, X + 20, Y + 20) // Click rubbish
+    Delay 250
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107) // Select max quantity "+"
+    Delay 100
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)// Press Enter
+    Call Plugin.Bkgnd.LeftClick(hwnd, 647, 414)
+    Delay 1000
+    Rem Pic_not_found
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)
+
+End Sub
+
+Sub Sell_All(hwnd, Trader)
+    Call FindTrader(hwnd, Trader)
+    Delay 1000
+    // Sell suplus Food
+    Call Plugin.Bkgnd.LeftClick(hwnd, 684, 365)
+    Delay 2000
+	
+    Call Plugin.Bkgnd.LeftClick(hwnd, 294, 81)// Click Sell all button	
+    Delay 200
+    Call Plugin.Bkgnd.LeftClick(hwnd, 449, 335) // Bargain
+    Delay 2000
+    Call Plugin.Bkgnd.LeftClick(hwnd, 664, 414) // Confirm
+    Delay 1000
+    Call Plugin.Bkgnd.KeyPress(hwnd, 27)
+
+End Sub
+
+Sub SupplyMP(hwnd)
+    MP_val = Plugin.Memory.Read32Bit(hwnd, MP_add)
+    Call Plugin.Bkgnd.KeyPress(hwnd, 121)
+	
+	
+    While MP_val < 700
+		
+        Delay 500
+        Call Plugin.Bkgnd.KeyPress(hwnd, 112)// Eat Food
+        MP_val = Plugin.Memory.Read32Bit(hwnd, MP_add)
+    Wend	
+End Sub
+
+Sub Leaving(hwnd, X, Y, PorterID)
+    Call OpenMap
+    Delay 800
+    Call Plugin.Bkgnd.LeftClick(hwnd, X, Y)
+
+    //	TracePrint "Clicked"
+    Delay 4000
+    Call FindTrader(hwnd, PorterID)
+    Delay 1000
+    Call Move_Click_v2(hwnd, 646,363)
+		
+End Sub
+
+Sub Choose_Navi_Path(path)
+    BringWinOnTop(hwnd0)
+    Call Plugin.Bkgnd.KeyPress(hwnd0, 116)//Press F5
+    Delay 500
+    SayString path
+    KeyPress "Enter", 1
+End Sub
+Sub StartNavi
+    Call Plugin.Window.Active(hwnd0)
+    Delay 300
+    Call Plugin.Bkgnd.KeyPress(hwnd0, 121)//F10
+    Delay 300
+    Call Plugin.Bkgnd.KeyPress(hwnd0, 83)//S
+    Delay 300
+    Call Plugin.Bkgnd.KeyPress(hwnd0, 82)//R
+    Delay 500
+End Sub
+
+Function Check_Arrival(DX1, DY1)
+    Dim cond(3)
+    color1 = Plugin.BkgndColor.GetPixelColor(hwnd1,629,330)
+    color2 = Plugin.BkgndColor.GetPixelColor(hwnd1, 641, 332)
+    color3 = Plugin.BkgndColor.GetPixelColor(hwnd1, 654, 334)
+	
+    If Hex(color1) = "FFFFFF" Then 
+        TracePrint "True!!"
+        cond(0) = 0
+    Else 
+        cond(0) = -1
+    End If
+
+    If Hex(color2) = "FFFFFF" Then 
+        cond(1) = 0
+    Else 
+        cond(1) = -1
+    End If
+
+    If Hex(color3) = "FFFFFF" Then 
+        cond(2) = 0
+    Else 
+        cond(2) = -1
+    End If
+
+	
+	
+    //	IfColor DX1 + 629, DY1 + 330, "ffffff", 0 Then
+    //		TracePrint "True!!"
+    //		cond(0) = 0
+    //	Else
+    //		cond(0) = -1
+    //	End If
+    //	
+    //	IfColor DX1 + 641, DY1 + 332, "ffffff", 0 Then
+    //		cond(1) = 0
+    //	Else
+    //		cond(1) = -1
+    //	End If
+    //	
+    //	IfColor DX1 + 654, DY1 + 334, "ffffff", 0 Then
+    //	
+    //		cond(2) = 0
+    //	Else
+    //		cond(2) = -1 
+    //	End If
+		
+    Check_Arrival = cond
+End Function
+
+Sub Supply(DX,DY, hwnd)
+    Call BringWinOnTop(hwnd)
+    //Call Move_Click_v2(hwnd, 682, 360)// Supply button
+    Call Plugin.Bkgnd.LeftClick(hwnd, 682, 360)
+	
+    Delay 800 // Wait for supply meun to pop up	
+    //Call Move_Click_v2(hwnd, 194, 360)// Supply to saved value
+    Call Plugin.Bkgnd.LeftClick(hwnd, 194, 360)
+	
+    Delay 300
+    //Call Move_Click_v2(hwnd, 597, 404)// Click confirm button
+    Call Plugin.Bkgnd.LeftClick(hwnd, 597, 404)
+    // Need to becareful for this step, if it is full, the button is not clickable
+	
+End Sub
+
+Sub SailOut
+    Call BringWinOnTop(hwnd1)
+    Call Plugin.Bkgnd.KeyPress(hwnd1, 27)
+    //Call Move_Click_v2(hwnd1, 640, 360)
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 640, 360)
+    Delay 1000
+	
+    //Call Move_Click_v2(hwnd1, 549, 398)
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 549, 398)
+    Delay 500
+End Sub

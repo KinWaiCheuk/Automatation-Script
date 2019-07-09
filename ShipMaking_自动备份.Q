@@ -8,8 +8,8 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=a8e9bbf9-1c5d-42be-9ed7-9d8e312016b3
-Description=ShipMaking
+MacroID=7cf823a1-3b55-4ef2-a161-23df03f720d9
+Description=ShipMaking_自动备份
 Enable=0
 AutoRun=0
 [Repeat]
@@ -24,9 +24,9 @@ SetupOCXFile=
 
 [Script]
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 197654
+hwnd0 = 3017344
 hwnd1 = 5376750
-hwnd2 = 1179906
+hwnd2 = 394196
 hwnd3 = 328942
 hwnd4 = 68620
 ehwnd = 134132
@@ -76,6 +76,18 @@ DYe = MyArraye(1)
 // --------------Testing
 TracePrint DXe
 TracePrint DYe
+BringWinOnTop(hwnd0)
+Call Plugin.Bkgnd.KeyPress(hwnd0, 13)//Press F
+
+	Call Plugin.Bkgnd.KeyPress(hwnd0, 116)//Press F5
+	Delay 300
+//	Call Plugin.Bkgnd.SendString(hwnd0, "back")
+	//BringWinOnTop(hwnd0)
+	Call Plugin.Bkgnd.KeyPress(hwnd0, 13)//Press F5
+	SayString "back"
+Delay 300
+	KeyPress "Enter", 1
+	Delay 300
 
 //-----------------Start of Prog-------------------
 
@@ -88,7 +100,6 @@ Wend
 
 Rem Done
 Delay 4000
-
 
 Call EnterCity(hwnd2, DX2, DY2)
 Delay 15000
@@ -116,6 +127,8 @@ Delay 4000
 Call Supply
 Delay 500
 Call SailOut
+
+
 
 
 
@@ -169,7 +182,7 @@ Sub FindShipMaker(hwnd)
     	KeyPress 9, 1
     	TargetID = Int(Plugin.Memory.Read32Bit(hwnd2, TargetID_add))
         Delay 100
-		If TargetID = 25168174 Then 
+		If TargetID = 25170001 Then 
 			TracePrint "Found"
 			Goto Found
 		End If
@@ -185,7 +198,7 @@ Sub FindPortOfficer(hwnd)
     	TargetID = Int(Plugin.Memory.Read32Bit(hwnd2, TargetID_add))
 		TracePrint "Finding port officer"
         Delay 100
-		If TargetID = 25168173 Then 
+		If TargetID = 25170000 Then 
 			Goto Found
 		End If
 		Next
@@ -200,8 +213,7 @@ Sub FindBanker(hwnd)
     	TargetID = Int(Plugin.Memory.Read32Bit(hwnd2, TargetID_add))
 
         Delay 100
-		//If TargetID = 25170034 Then 
-		If TargetID = 25168205 Then
+		If TargetID = 25170034 Then 
 			Goto Found
 		End If
 		Next
@@ -261,10 +273,11 @@ End Sub
 
 
 Sub EnterPort
-	BringWinOnTop(hwnd0)
 	Call Plugin.Bkgnd.KeyPress(hwnd0, 116)//Press F5
-	Delay 1000
-	SayString "back"
+	Delay 300
+	Call Plugin.Bkgnd.SendString(hwnd0, "back")
+	BringWinOnTop (hwnd0)
+	Delay 300
 	KeyPress "Enter", 1
 	Delay 300
 	

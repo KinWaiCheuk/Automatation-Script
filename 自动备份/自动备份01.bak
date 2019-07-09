@@ -24,13 +24,13 @@ SetupOCXFile=
 
 [Script]
 // -----------Parameters
-hwnd0 = 18155522
-hwnd1 = 1508620
-hwnd2 = 22153826
-hwnd3 = 68998
-hwnd4 = 69010
-hwnd5 = 397138
-ehwnd = 330240
+hwnd0 = 4198132
+hwnd1 = 10619898
+hwnd2 = 12714482
+hwnd3 = 134246
+hwnd4 = 69040
+hwnd5 = 69052
+ehwnd = 131738
 
 num_players = 5
 
@@ -81,6 +81,8 @@ Food_add = &H0111FF5C
 TargetID_add = &H0111AEA4
 
 // Test Area
+reconnect
+
 // End of Test Area
 
 
@@ -88,7 +90,7 @@ TargetID_add = &H0111AEA4
 For i = 0 To (num_players - 1)
 	If i = 0 Then 
 		Call Supply(PlayerHWND(i), "saved")
-	Else Call Supply(PlayerHWND(i),  "saved")
+	Else Call Supply(PlayerHWND(i),  "max")
 	End If
 		
 	
@@ -102,7 +104,7 @@ Delay 3000
 Call Plugin.Bkgnd.KeyPress(watchdog, 121)
 Delay 1000
 Call Plugin.Bkgnd.KeyPress(watchdog, 113)
-Call Plugin.Bkgnd.KeyPress(watchdog, 121)
+
 
 cond = Check_Arrival
 loopcounter = 0
@@ -146,14 +148,7 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
 	If loopcounter = 30 or loopcounter = 60 Then 
 		TracePrint "Checking Food"
 		Call Dist_Resources
-		If loopcounter = 60 Then 
-			Call Plugin.Bkgnd.KeyPress(watchdog, 121)
-			Delay 500
-			Call Plugin.Bkgnd.KeyPress(hwnd1, 115)
-			Delay 500
-			Call Plugin.Bkgnd.KeyPress(watchdog, 121)			
-		End If
-
+		Call Plugin.Bkgnd.KeyPress(hwnd1, 115)
 	End If
 	
 	

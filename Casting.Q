@@ -25,8 +25,8 @@ SetupOCXFile=
 [Script]
 // Loading Memory
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 591984
-hwnd1 = 27791202
+hwnd0 = 329102
+hwnd1 = 1314534
 hwnd2 = 27791202
 hwnd3 = 132956
 hwnd4 = 10818044
@@ -115,11 +115,19 @@ End Sub
 
 // ------- Start of Prog----------
 
+cond = Check_Arrival(DX1, DY1)
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+    cond = Check_Arrival(DX1, DY1)
+    //Call CheckOnline_onsea
+
+    counter = counter+1
+Wend
 
 Call EnterPort_LA
 
 Call Leaving(hwnd1, 393, 250)
 Delay 3000
+
 
 Call Supply(DX1, DY1, hwnd1)
 Delay 1000
@@ -156,16 +164,6 @@ Call Choose_Navi_Path("To_CastA")
 Call StartNavi
 
 Activate_Skill(hwnd1)
-
-cond = Check_Arrival(DX1, DY1)
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-    cond = Check_Arrival(DX1, DY1)
-    //Call CheckOnline_onsea
-
-    counter = counter+1
-Wend
-
-
 
 
 
@@ -222,7 +220,7 @@ End Sub
 Sub TradingA(DX, DY, hwnd)
 	Call Sell_Extra(hwnd)
 	Delay 1000
-    Call FindTrader(hwnd, 25167772)
+    Call FindTrader(hwnd, 25167783)
     Delay 1000
     Call BuyCast(DX, DY, hwnd)
     Delay 1000
@@ -269,11 +267,11 @@ Sub BuyCast(DX, DY, hwnd)
     Call BringWinOnTop(hwnd)
     Call Plugin.Bkgnd.LeftClick(hwnd, 640, 357) // Option = Buy
 
-    Delay 800
+    Delay 1500
 	
     // Wheel down
     Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
-    Delay 400
+    Delay 800
     Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
 		
 	
@@ -283,7 +281,7 @@ Sub BuyCast(DX, DY, hwnd)
     Call Plugin.Bkgnd.KeyPress(hwnd, 101)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-    Delay 200
+    Delay 1500
     
     Call Move_Click_v2(hwnd, 165, 309)// Buy the 3st target product
     Delay 200
@@ -388,7 +386,7 @@ End Sub
 
 
 Sub Sell_Extra(hwnd)
-	Call FindTrader(hwnd1, 25167772)
+	Call FindTrader(hwnd1, 25167783)
 	Delay 1000
 	// Sell suplus Food
 	Call Plugin.Bkgnd.LeftClick(hwnd, 684, 365)
@@ -440,7 +438,7 @@ Sub Leaving(hwnd, X, Y)
 	Call Move_Click_v2(hwnd, X, Y)// Click the PortOfficer Location
 //	TracePrint "Clicked"
 	Delay 4000
-	Call FindTrader(hwnd, 25167773)
+	Call FindTrader(hwnd, 25167784)
 	Delay 1000
 	Call Move_Click_v2(hwnd, 646,363)
 		

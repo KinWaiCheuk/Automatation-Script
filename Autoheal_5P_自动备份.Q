@@ -8,8 +8,8 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=b16443ba-08dc-4930-a3df-d1238ceb2a84
-Description=Autoheal_5P
+MacroID=8c519e09-eaf4-49eb-bcf8-875bc1e0a948
+Description=Autoheal_5P_自动备份
 Enable=1
 AutoRun=0
 [Repeat]
@@ -24,19 +24,18 @@ SetupOCXFile=
 
 [Script]
 // -----------Parameters
-hwnd0 = 18155522
-hwnd1 = 1508620
-hwnd2 = 22153826
-hwnd3 = 68998
-hwnd4 = 69010
-hwnd5 = 397138
-ehwnd = 330240
+hwnd0 = 262952
+hwnd1 = 328680
+hwnd2 = 197548
+hwnd3 = 263098
+hwnd4 = 330568
+hwnd5 = 592636
+ehwnd = 330482
 
 num_players = 5
 
 watchdog = hwnd1
 healer = hwnd2
-repairman = hwnd2
 // ----------End of Parameters
 
 
@@ -51,11 +50,6 @@ fight_state = 64
 // Loading memory for food exchange
 Water_add = &H0111FF5A
 Food_add = &H0111FF5C
-ShipHP_add = &H0111FF62
-ShipMaxHP_add = &H011202F0
-MP_add = &H0111FF48
-Material_add = &H0111FF60
-TeamMember_add = &H0112059C
 
 Dim PlayerID(4)
 PlayerID(0) = 6031955
@@ -81,6 +75,7 @@ Food_add = &H0111FF5C
 TargetID_add = &H0111AEA4
 
 // Test Area
+
 // End of Test Area
 
 
@@ -88,7 +83,7 @@ TargetID_add = &H0111AEA4
 For i = 0 To (num_players - 1)
 	If i = 0 Then 
 		Call Supply(PlayerHWND(i), "saved")
-	Else Call Supply(PlayerHWND(i),  "saved")
+	Else Call Supply(PlayerHWND(i), "max")
 	End If
 		
 	
@@ -102,58 +97,17 @@ Delay 3000
 Call Plugin.Bkgnd.KeyPress(watchdog, 121)
 Delay 1000
 Call Plugin.Bkgnd.KeyPress(watchdog, 113)
-Call Plugin.Bkgnd.KeyPress(watchdog, 121)
+
 
 cond = Check_Arrival
 loopcounter = 0
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1 
-	// Check if the game is loading
-	Rem StillLoading
-	blackscreen = check_blackscreen(hwnd1)
-	If blackscreen = - 1  Then // -1 is True
-		Delay 1000
-		loopcounter = loopcounter + 1
-		Goto StillLoading
-	End If
-	// End of check
-	
+    TracePrint loopcounter
     Autohealv3 
-    
-    
-    If Check_Windows_Alive(hwnd0) = - 1  Then 
-    	Call StopNavi
-		Call Move_Click_v2(hwnd1,782,585)
-		Call Disconnect(hwnd1)
-    End If
-    
-    If Plugin.Memory.Read16Bit(hwnd1, TeamMember_add) < 5 Then 
-		Call Disconnect(hwnd1)
-		Call Disconnect(hwnd2)
-		Call Disconnect(hwnd3)
-		Call Disconnect(hwnd4)
-		Call Disconnect(hwnd5)
-	End If
-	
-    
-    // Only Repair when there is material
-    Materials = Plugin.Memory.Read16Bit(repairman, Material_add)
-	If Materials > 0 Then 
-		TracePrint "Repair"
-		Check_ShipHP(repairman)	
-	End If
-    
     cond = Check_Arrival
 	If loopcounter = 30 or loopcounter = 60 Then 
 		TracePrint "Checking Food"
-		Call Dist_Resources
-		If loopcounter = 60 Then 
-			Call Plugin.Bkgnd.KeyPress(watchdog, 121)
-			Delay 500
-			Call Plugin.Bkgnd.KeyPress(hwnd1, 115)
-			Delay 500
-			Call Plugin.Bkgnd.KeyPress(watchdog, 121)			
-		End If
-
+		Call Dist_Resources	
 	End If
 	
 	
@@ -161,6 +115,7 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
     	TracePrint "Checking Food"
     	Call Dist_Resources	
         Call Refresh_Nav
+        Call BringWinOnTop(hwnd1)
         // Keep player 2,3,4 active
         //Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10 
         //Call Plugin.Bkgnd.KeyPress(hwnd2, 121)//Press F10
@@ -177,12 +132,12 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
 		
     End If
     Delay 1000
-    loopcounter = loopcounter + 1
-    TracePrint loopcounter
+    loopcounter = loopcounter+1
 Wend
 Call SendAlert("Arrived")
 
-//--------------------------End of Program----------------------------------
+
+
 Function Check_Arrival
     Dim cond(3)
     color1 = Plugin.BkgndColor.GetPixelColor(hwnd1,629,330)
@@ -396,7 +351,7 @@ End Function
 
 
 Sub Supply(hwnd, mode)
-//	Call BringWinOnTop(hwnd)
+	Call BringWinOnTop(hwnd)
 	//Call Move_Click_v2(hwnd, 682, 360)// Supply button
 	Call Plugin.Bkgnd.LeftClick(hwnd, 682, 360)
 	
@@ -747,93 +702,5 @@ Sub Login(hwnd, pass)
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) //Select servers
 	Delay 3500
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Select character
-
-End Sub
-
-
-Sub Check_ShipHP(repairman)
-	ShipHP = UPDATE_PLAYER_16Bit(ShipHP_add)
-	ShipMaxHP = UPDATE_PLAYER_16Bit(ShipMaxHP_add)
-	
-	For i = 0 To (num_players - 1)
-		HP_pencentage = ShipHP(i) / ShipMaxHP(i)
-//		TracePrint i
-//		TracePrint ShipHP(i)
-//		TracePrint ShipMaxHP(i)
-		TracePrint HP_pencentage
-		If HP_pencentage < 0.7 Then
-            Call RepairShip(repairman)
-        End If
-	Next
-End Sub
-
-Sub RepairShip(repairman)
-    Call Plugin.Bkgnd.KeyPress(repairman, 121)//Press F10 
-    For j = 0 To 5 
-        Delay 1000
-        Call Plugin.Bkgnd.KeyPress(repairman, 119) //Press F8
-    Next
-       Call Plugin.Bkgnd.KeyPress(repairman, 121) //Press F10 again to cancael meun	
-End SUb
-
-Sub SupplyMP(hwnd)
-	MP_val = Plugin.Memory.Read32Bit(hwnd, MP_add)
-	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
-	
-	
-	While MP_val < 100
-		// Convert wheat to powder
-		Delay 100
-		Call Plugin.Bkgnd.KeyPress(hwnd, 112)// Eat Food
-		MP_val = Plugin.Memory.Read32Bit(hwnd, MP_add)
-	Wend	
-End Sub
-
-
-Function check_blackscreen(hwnd)
-	color1 = Plugin.BkgndColor.GetPixelColor(hwnd, 10, 10)
-	color2 = Plugin.BkgndColor.GetPixelColor(hwnd, 400, 200)
-	color3 = Plugin.BkgndColor.GetPixelColor(hwnd, 700, 500)
-	
-	If color1 = 0 and color2 = 0 and color3 = 0 Then 
-		check_blackscreen = True
-	Else 
-		check_blackscreen = False
-	End If
-	
-End Function
-
-Function Check_Windows_Alive(hwnd)
-sWindow = Plugin.Window.GetWindowState(hwnd, 6)
-If sWindow = -1 Then 
-	Check_Windows_Alive = -1// Windows dead
-	SendAlert("Holy Navi is dead")
-ElseIf sWindow = 0 Then
-	Check_Windows_Alive = 0 // Windows fine
-End If
-End Function
-
-Sub Disconnect(hwnd)
-	// Stop Ship
-	Call Plugin.Bkgnd.LeftClick(hwnd, 781, 580)
-		
-	Call Plugin.Bkgnd.LeftClick(hwnd, 767, 18)
-	Delay 500
-	Call Move_Click_v2(hwnd, 732, 135)
-	Delay 200
-	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-
-End Sub
-
-Sub StopNavi
-
-	Call Plugin.Window.Active(hwnd0)
-	Delay 300
-	Call Plugin.Bkgnd.KeyPress(hwnd0, 121)//F10
-	Delay 300
-	Call Plugin.Bkgnd.KeyPress(hwnd0, 83)//S
-	Delay 300
-	Call Plugin.Bkgnd.KeyPress(hwnd0, 80)//R
-	Delay 500
 
 End Sub

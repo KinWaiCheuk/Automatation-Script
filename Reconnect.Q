@@ -10,7 +10,7 @@ RunOnce=1
 EnableWindow=
 MacroID=223928ce-359c-4160-937e-52eed5462997
 Description=Reconnect
-Enable=1
+Enable=0
 AutoRun=0
 [Repeat]
 Type=0

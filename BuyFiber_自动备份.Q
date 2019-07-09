@@ -8,13 +8,13 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=98ec5482-fd93-4b21-bbaa-8dd7b76dff3d
-Description=BuyAnimal_v2
+MacroID=84ec2052-9442-4ab9-afe2-a86ebe45de4c
+Description=BuyFibers_自动备份
 Enable=1
 AutoRun=0
 [Repeat]
 Type=0
-Number=500
+Number=200
 [SetupUI]
 Type=2
 QUI=
@@ -25,15 +25,18 @@ SetupOCXFile=
 [Script]
 // Loading Memory
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 6162116
-hwnd1 = 132990
-hwnd2 = 60951206
-hwnd3 = 1969450
-hwnd4 = 42012124
-ehwnd = 132450
+hwnd0 = 262684
+hwnd1 = 131854
+hwnd2 = 134600
+hwnd3 = 134628
+hwnd4 = 134644
+ehwnd = 68404
 
-TraderID = 25167020
-PorterID = 25167012
+TraderID_A = 25168390
+PorterID_A = 25168378
+
+TraderID_B = 25167160
+PorterID_B = 25167161
 
 sick_state = 2
 sick_state_2 = 1
@@ -112,14 +115,9 @@ DYe = MyArraye(1)
 
 // ------- Start of Prog----------
 
+//Activate_Skill(hwnd1)
 
 
-
-Call EnterPort_LA
-Delay 800
-
-Call Leaving(hwnd1, 628, 177)
-Delay 4000
 
 TracePrint Cstr(Time) + " Going to B"
 
@@ -128,7 +126,7 @@ Call Supply(DX1, DY1, hwnd1)
 Delay 1500
 Call SailOut
 Delay 5500
-Call Choose_Navi_Path("To_Animal_B_v2")
+Call Choose_Navi_Path("To_Fiber_B")
 moveDirection = "B"
 Call StartNavi
 Delay 1000
@@ -164,15 +162,20 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 	Delay 1000
 Wend
 
+
+Call EnterPort_LB(TraderID_B)
+Delay 800
+
+Call Leaving(hwnd1, 528, 228, PorterID_B)
+Delay 4000
+
 Delay 2000
 Call SailOut
 Delay 1500
 TracePrint Cstr(Time) + " Going back to A"
 moveDirection = "A"
-Call Choose_Navi_Path("To_Animal_A_v2")
+Call Choose_Navi_Path("To_Fiber_A")
 Call StartNavi
-
-//Activate_Skill(hwnd1)
 
 cond = Check_Arrival(DX1, DY1)
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
@@ -192,24 +195,26 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
     counter = counter+1
 Wend
 
-Delay 2500
+Delay 2500	
 
 
 
 
+Call EnterPort_LA(TraderID_A)
+Delay 800
 
-
-
+Call Leaving(hwnd1, 562, 243, PorterID_A)
+Delay 4000
 
 
 //Call reconnect
 // ---------------End of Prog
 
 
-Sub EnterPort_LA
+Sub EnterPort_LA(TraderID)
     BringWinOnTop (hwnd1)
     Delay 500
-    Call Plugin.Bkgnd.LeftClick(hwnd1, 649, 383) //Click Enter
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 732, 383) //Click Enter
 
     Delay 1900
     For 10
@@ -225,10 +230,10 @@ Sub EnterPort_LA
     Call OpenMap
     Delay 800
     //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
-    Call Plugin.Bkgnd.LeftClick(hwnd1, 577, 162)
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 580, 252)
     Delay 5600
 	
-    Call TradingA(DX1, DY1, hwnd1)
+    Call TradingA(DX1, DY1, hwnd1, TraderID)
     MoveTo DX1+ 361, DY1 + 100
     Delay 1000
 //    RightClick 1
@@ -242,6 +247,41 @@ Sub EnterPort_LA
 
 End Sub
 
+Sub EnterPort_LB(TraderID)
+    BringWinOnTop (hwnd1)
+    Delay 1000
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 647, 389) //Click Enter
+
+    Delay 1900
+    For 10
+        IfColor DX1+641,DY1+385,"000000)",0 Then
+            Delay 1000
+        Else    
+            Goto Loaded_City
+        End If
+    Next
+	
+    Rem Loaded_City
+    Delay 2500
+    Call OpenMap
+    Delay 800
+    //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 471, 195)
+    Delay 5600
+	
+    Call TradingB(DX1, DY1, hwnd1, TraderID)
+    MoveTo DX1+ 361, DY1 + 100
+    Delay 1000
+//    RightClick 1
+//    Delay 800
+//    RightClick 1
+//    KeyDown "Up", 1
+//    Delay 800
+//    KeyUp "Up", 1
+    
+
+
+End Sub
 
 Sub BringWinOnTop(hwnd)
     Call Plugin.Window.Active(hwnd)
@@ -252,10 +292,7 @@ Sub OpenMap
     Call Plugin.Bkgnd.KeyPress(hwnd1, 112)
 End Sub
 
-Sub TradingA(DX, DY, hwnd)
-	Call Sell_Extra(hwnd)
-	TracePrint "Item sold"
-	Delay 800
+Sub TradingA(DX, DY, hwnd, TraderID)
     Call FindTrader(hwnd, TraderID)
     TracePrint "Item bought" 
     Delay 800
@@ -264,9 +301,15 @@ Sub TradingA(DX, DY, hwnd)
 	
 	// Call Plugin.Bkgnd.KeyPress(hwnd, 121) // Cancel Skill
 
-	
-	
+End Sub
 
+Sub TradingB(DX, DY, hwnd, TraderID)
+	Call FindTrader(hwnd1, TraderID)
+	Delay 1500
+	Call Sell_Extra(hwnd)
+	TracePrint "Item sold"
+	Delay 800
+	// Call Plugin.Bkgnd.KeyPress(hwnd, 121) // Cancel Skill
 End Sub
 
 Sub FindTrader(hwnd, target_ID)
@@ -341,23 +384,29 @@ Sub BuyCast(DX, DY, hwnd)
 
 		
 	
-    Call Move_Click_v2(hwnd, 165, 257)// Buy the 3st target product
+    Call Move_Click_v2(hwnd, 165, 190)// Buy the 2st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
     Delay 300
     
-    Call Move_Click_v2(hwnd, 165, 309)// Buy the 3st target product
+    Call Move_Click_v2(hwnd, 165, 255)// Buy the 3st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
     Delay 300
-	
+
+    Call Move_Click_v2(hwnd, 165, 300)// Buy the 4st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 300	
 	
     Call Plugin.Bkgnd.LeftClick(hwnd, 428, 304)// Bargain
-    Delay 400
+    Delay 1000
     Call Plugin.Bkgnd.LeftClick(hwnd, 647, 423)// Confirm	
     Delay 400
 
@@ -451,8 +500,6 @@ End Sub
 
 
 Sub Sell_Extra(hwnd)
-	Call FindTrader(hwnd1, TraderID)
-	Delay 1500
 	// Sell suplus Food
 	Call Plugin.Bkgnd.LeftClick(hwnd, 684, 365)
 	Delay 1500
@@ -487,7 +534,7 @@ Sub SupplyMP(hwnd)
 	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
 	
 	
-	While MP_val < 700
+	While MP_val < 200
 		// Convert wheat to powder
 		Delay 500
 		Call Plugin.Bkgnd.KeyPress(hwnd, 112)// Eat Food
@@ -495,7 +542,7 @@ Sub SupplyMP(hwnd)
 	Wend	
 End Sub
 
-Sub Leaving(hwnd, X, Y)
+Sub Leaving(hwnd, X, Y, PorterID)
 	Call OpenMap
 	Delay 800
 	// Call Move_Click_v2(hwnd, X, Y)
@@ -642,12 +689,12 @@ Sub CheckOnline_onsea(moveDirection)
 		Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
 		Delay 1000
 		If moveDirection = "A" Then 
-			Call Choose_Navi_Path("To_Animal_A_v21")
+			Call Choose_Navi_Path("To_Fiber_A")
 			SendAlert ("Reactivate the destination to A")
 			Delay 500
 			Call StartNavi
 		ElseIf moveDirection = "B" Then
-			Call Choose_Navi_Path("To_Animal_B_v2")
+			Call Choose_Navi_Path("To_Fiber_B")
 			SendAlert ("Reactivate the destination to B")
 			Delay 500
 			Call StartNavi
@@ -738,7 +785,8 @@ Sub Disconnect(hwnd)
 End Sub
 
 Function Check_Windows_Alive(hwnd)
-sWindow = Plugin.Window.GetWindowState(hwnd0, 6)
+sWindow1 = Plugin.Window.GetWindowState(hwnd0, 6)
+sWindow2 = Plugin.Window.GetWindowState(hwnd0, 6)
 If sWindow = -1 Then 
 	Check_Windows_Alive = -1// Windows dead
 	SendAlert("Holy Navi is dead")
