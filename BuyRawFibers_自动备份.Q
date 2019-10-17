@@ -8,13 +8,13 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=f5e6f126-621e-42f2-b6ca-5f1576dd84ad
-Description=BuyFibers
+MacroID=7c44ff3a-eefc-4c56-a998-e9aec6d464a7
+Description=BuyRawFibers_自动备份
 Enable=1
 AutoRun=0
 [Repeat]
 Type=0
-Number=200
+Number=400
 [SetupUI]
 Type=2
 QUI=
@@ -25,18 +25,18 @@ SetupOCXFile=
 [Script]
 // Loading Memory
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 461502
-hwnd1 = 394064
+hwnd0 = 10423212
+hwnd1 = 66352
 hwnd2 = 134600
 hwnd3 = 134628
 hwnd4 = 134644
-ehwnd = 68500
+ehwnd = 68610
 
-TraderID_A = 25168390
-PorterID_A = 25168378
+TraderID_A = 25167514
+PorterID_A = 25167515
 
-TraderID_B = 25167160
-PorterID_B = 25167161
+TraderID_B = 25167208
+PorterID_B = 25167207
 
 sick_state = 2
 sick_state_2 = 1
@@ -112,34 +112,54 @@ DYe = MyArraye(1)
 
 
 //--------Test-------------------
-Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
-If Player1_ol_value = 0 Then
-	Call reconnect
-End If
-
 //--------End of Test-------------
 
 // ------- Start of Prog----------
+cond = Check_Arrival(DX1, DY1)
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+    cond = Check_Arrival(DX1, DY1)
+    Call CheckOnline_onsea(moveDirection)
+    exist = Check_Windows_Exist(hwnd0)
+    day_num = Int(Plugin.Memory.Read32Bit(hwnd1, Day_add))
+    
+	If day_num > 3 or Check_Windows_Alive(hwnd0) = -1 or exist=0 Then 
+		SendAlert ("It get sucked on sea")
+		Call StopNavi
+		Call Move_Click_v2(hwnd1,782,585)
+		Call Disconnect(hwnd1)
+		
+		Call ExitScript
+	End If
 
-Call EnterPort_LA(TraderID_A)
+    counter = counter + 1
+    Delay 1000
+Wend
+
+Delay 2500
+Call EnterPort_LA(TraderID_A, 470,154)
 Delay 800
 
-Call Leaving(hwnd1, 561, 246, PorterID_A)
+
+Call SupplyMP(hwnd1, 440, 158)
+Delay 3000
+
+Call Leaving(hwnd1, 416, 234, PorterID_A)
 Delay 4000
 
-TracePrint Cstr(Time) + " Going to B"
 
+
+TracePrint Cstr(Time) + " Going to B"
 
 Call Supply(DX1, DY1, hwnd1)
 // Call Supply(DX2, DY2, hwnd2)
 Delay 1500
 Call SailOut
 Delay 5500
-Call Choose_Navi_Path("To_Fiber_B")
+Call Choose_Navi_Path("To_RawFiber_B")
 moveDirection = "B"
 Call StartNavi
 Delay 1000
-//Activate_Skill (hwnd1)
+Activate_Skill(hwnd1)
 
 
 cond = Check_Arrival(DX1, DY1)
@@ -149,7 +169,8 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 	Call CheckOnline_onsea(moveDirection)
 	Check_Windows_Exist(hwnd0)
 	day_num = Plugin.Memory.Read32Bit(hwnd1, Day_add)
-	If day_num > 1 or Check_Windows_Alive(hwnd0) = - 1  Then 
+	
+	If day_num > 3 or Check_Windows_Alive(hwnd0) = - 1  Then 
 	
 		SendAlert ("It get sucked on sea")
 		Call StopNavi
@@ -172,59 +193,34 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 	Delay 1000
 Wend
 
-//Activate_Skill(hwnd1)
-
-//Call reconnect
-Call EnterPort_LB(TraderID_B)
+Call EnterPort_LB(TraderID_B, 583,159)
 Delay 800
 
-Call SupplyMP(hwnd1, 523, 167)
-Delay 3000
 
-Call Leaving(hwnd1, 528, 228, PorterID_B)
+Call Leaving(hwnd1, 532, 251, PorterID_B)
 Delay 4000
 
+
+Call Supply(DX1, DY1, hwnd1)
 Delay 2000
 Call SailOut
 Delay 1500
 TracePrint Cstr(Time) + " Going back to A"
 moveDirection = "A"
-Call Choose_Navi_Path("To_Fiber_A")
+Call Choose_Navi_Path("To_RawFiber_A")
 Call StartNavi
-
-
-cond = Check_Arrival(DX1, DY1)
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-    cond = Check_Arrival(DX1, DY1)
-    Call CheckOnline_onsea(moveDirection)
-    exist = Check_Windows_Exist(hwnd0)
-    day_num = Int(Plugin.Memory.Read32Bit(hwnd1, Day_add))
-	If day_num > 1 or Check_Windows_Alive(hwnd0) = -1 or exist=0 Then 
-		SendAlert ("It get sucked on sea")
-		Call StopNavi
-		Call Move_Click_v2(hwnd1,782,585)
-		Call Disconnect(hwnd1)
-		
-		Call ExitScript
-	End If
-
-    counter = counter+1
-Wend
-
-Delay 2500
-
-
-
+Activate_Skill(hwnd1)
+//Call reconnect
 
 
 
 // ---------------End of Prog
 
 
-Sub EnterPort_LA(TraderID)
+Sub EnterPort_LA(TraderID, X, Y)
     BringWinOnTop (hwnd1)
     Delay 500
-    Call Plugin.Bkgnd.LeftClick(hwnd1, 726, 409) //Click Enter
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 647, 383) //Click Enter
 
     Delay 1900
     For 10
@@ -240,12 +236,12 @@ Sub EnterPort_LA(TraderID)
     Call OpenMap
     Delay 800
     //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
-    Call Plugin.Bkgnd.LeftClick(hwnd1, 528, 176)
-    Delay 2600
+    Call Plugin.Bkgnd.LeftClick(hwnd1, X, Y)
+    Delay 8600
 	
     Call TradingA(DX1, DY1, hwnd1, TraderID)
     MoveTo DX1+ 361, DY1 + 100
-    Delay 1000
+    Delay 2000
 //    RightClick 1
 //    Delay 800
 //    RightClick 1
@@ -257,7 +253,7 @@ Sub EnterPort_LA(TraderID)
 
 End Sub
 
-Sub EnterPort_LB(TraderID)
+Sub EnterPort_LB(TraderID, X, Y)
     BringWinOnTop (hwnd1)
     Delay 1000
     Call Plugin.Bkgnd.LeftClick(hwnd1, 647, 389) //Click Enter
@@ -276,8 +272,8 @@ Sub EnterPort_LB(TraderID)
     Call OpenMap
     Delay 800
     //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
-    Call Plugin.Bkgnd.LeftClick(hwnd1, 471, 195)
-    Delay 5600
+    Call Plugin.Bkgnd.LeftClick(hwnd1, X, Y)
+    Delay 12600
 	
     Call TradingB(DX1, DY1, hwnd1, TraderID)
     MoveTo DX1+ 361, DY1 + 100
@@ -370,47 +366,32 @@ Sub BuyCast(DX, DY, hwnd)
 
     Delay 2500
 	
-//	Call Move_Click_v2(hwnd, 165, 125)// Buy the 3st target product
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-//    Delay 300
-//	
-//    Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-//    Delay 200
-//    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-//    Delay 300	
-	
 	
     // Wheel down
-    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
-    Delay 50
-    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
-    
-    Delay 100
-    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
-    Delay 50
-    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
-
-		
+    Call Bk_WheelDown(hwnd, 343,321, 4)
+  	
 	
-    Call Move_Click_v2(hwnd, 165, 190)// Buy the 2st target product
+    Call Move_Click_v2(hwnd, 165, 125)// Buy the 2st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
     Delay 300
     
-    Call Move_Click_v2(hwnd, 165, 255)// Buy the 3st target product
+    Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
     Delay 300
 
+    Call Move_Click_v2(hwnd, 165, 225)// Buy the 4st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 300
+    
     Call Move_Click_v2(hwnd, 165, 300)// Buy the 4st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
@@ -706,12 +687,12 @@ Sub CheckOnline_onsea(moveDirection)
 		Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
 		Delay 1000
 		If moveDirection = "A" Then 
-			Call Choose_Navi_Path("To_Fiber_A")
+			Call Choose_Navi_Path("To_RawFiber_A")
 			SendAlert ("Reactivate the destination to A")
 			Delay 500
 			Call StartNavi
 		ElseIf moveDirection = "B" Then
-			Call Choose_Navi_Path("To_Fiber_B")
+			Call Choose_Navi_Path("To_RawFiber_B")
 			SendAlert ("Reactivate the destination to B")
 			Delay 500
 			Call StartNavi
@@ -739,13 +720,13 @@ Sub Login(hwnd, pass)
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Confirm disconnect
 	Delay 300
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Confirm replay
-	Delay 300
+	Delay 3800
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Start login page
-	Delay 1000	
+	Delay 500	
 	Call Plugin.Bkgnd.LeftClick(hwnd, 401, 375)
 	Delay 3500
 	Call Plugin.Bkgnd.LeftClick(hwnd, 422, 484)
-	Delay 2500
+	Delay 500
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13)
 	Delay 500
 	Call Plugin.Bkgnd.KeyPress(hwnd, 9)
@@ -777,15 +758,18 @@ Sub Login(hwnd, pass)
 	Call Plugin.Bkgnd.LeftClick(hwnd, 668, 556) // Agree terms
 	Delay 100
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) //Select servers
-	Delay 4000
+	Delay 5000
 	Call Plugin.Bkgnd.KeyPress(hwnd, 13) // Select character
 
 End Sub
 
 Sub Activate_Skill(hwnd)
+	// F2 = 113
+	// F4 = 115
+	// F8 = 119
 	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
 	Delay 1000
-	Call Plugin.Bkgnd.KeyPress(hwnd, 119)
+	Call Plugin.Bkgnd.KeyPress(hwnd, 113) 
 	Call Plugin.Bkgnd.KeyPress(hwnd, 121)
 End Sub
 
@@ -946,19 +930,19 @@ Sub ChooseFood(DX, DY, hwnd)
 	
 	Call Bk_WheelDown(hwnd1, 366,383, 5)
 	
-	Call Move_Click_v2(hwnd1, 190, 186) // Choose Drink 1
+	Call Move_Click_v2(hwnd1, 190, 138) // Choose Drink 1
 	Delay 500
 	
-	Call Move_Click_v2(hwnd1, 224, 291)//Choose Food 1
+	Call Move_Click_v2(hwnd1, 224, 243)//Choose Food 1
 	Delay 500
 	
-	Call Move_Click_v2(hwnd1, 224, 291)//Choose Food 2
+	Call Move_Click_v2(hwnd1, 224, 243)//Choose Food 2
 	Delay 500
 	
-	Call Move_Click_v2(hwnd1, 224, 291)//Choose Food 3
+	Call Move_Click_v2(hwnd1, 224, 243)//Choose Food 3
 	Delay 500
 	
-	Call Move_Click_v2(hwnd1, 219, 186) //Choose Drink 2
+	Call Move_Click_v2(hwnd1, 219, 138) //Choose Drink 2
 	Delay 500
 	
 	Call Move_Click_v2(hwnd1,609,415) // Confirm

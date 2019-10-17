@@ -8,8 +8,8 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=f5e6f126-621e-42f2-b6ca-5f1576dd84ad
-Description=BuyFibers
+MacroID=96a25d26-2d31-4c71-8128-aaba04ae8917
+Description=BuyAlcho
 Enable=1
 AutoRun=0
 [Repeat]
@@ -23,59 +23,70 @@ SetupOCXFile=
 [Comment]
 
 [Script]
-// Loading Memory
-Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 461502
-hwnd1 = 394064
-hwnd2 = 134600
-hwnd3 = 134628
-hwnd4 = 134644
-ehwnd = 68500
+// -----------Parameters
+hwnd0 = 12124388
+hwnd1 = 263296
+hwnd2 = 5377538
+hwnd3 = 1379794
+hwnd4 = 1445354
+hwnd5 = 921156
+ehwnd = 68956
 
-TraderID_A = 25168390
-PorterID_A = 25168378
+num_players = 5
 
-TraderID_B = 25167160
-PorterID_B = 25167161
+watchdog = hwnd1
+healer = hwnd2
+repairman = hwnd2
+// ----------End of Parameters
+
 
 sick_state = 2
 sick_state_2 = 1
 mouse_state = 8
 fire_state = 16
-
+sinking = 64
+rebel_state = 4
+fight_state = 64
 
 // Loading memory for food exchange
-Water_add = &H0111FF5A
-Food_add = &H0111FF5C
-Day_add = &H011240E4
+Water_add = &H01139F8A
+Food_add = &H01139F8C
+ShipHP_add = &H01139F92
+ShipMaxHP_add = &H0113A334
+MP_add = &H01139F78
+Material_add = &H0111FF60
+TeamMember_add = &H0113A5E8
+OLstatus1_add = &H01139E1C
+state_add = &H01139ED4
+satate_add_2 = &H0111FEA6 // old
+Water_add = &H01139F8A
+Food_add = &H01139F8C
+TargetID_add = &H01134ECC
+Day_add = &H0113E244
 
-Dim PlayerID(3)
+Dim PlayerID(4)
 PlayerID(0) = 6031955
 PlayerID(1) = 6033147
 PlayerID(2) = 6034843
 PlayerID(3) = 6221865
+PlayerID(4) = 12789283
 
-Dim PlayerHWND(3)
+
+Dim PlayerHWND(4)
 PlayerHWND(0) = hwnd1
 PlayerHWND (1) = hwnd2
 PlayerHWND (2) = hwnd3
 PlayerHWND(3) = hwnd4
+PlayerHWND(4) = hwnd5
 
-//Call Plugin.Window.Move(Hwnd1, 100, 100)
+Dim player_state_value(4)
 
-state_add = &H0111FEA4
-Water_add = &H0111FF5A
-Food_add = &H0111FF5C
-TargetID_add = &H0111AEA4
 
-sick_state = 2
-mouse_state = 8
-fire_state = 16
-//Call Plugin.Window.Move(hwnd1, 100, 100)
-VBS state_add=&H0111FEA4
-MP_add = &H0111FF48
-OLstatus3_add = &H0112412C
-OLstatus1_add = &H0111FDEC
+TraderID_A = 25168018
+PorterID_A = 25168015
+
+TraderID_B = 25167147
+PorterID_B = 25167146
 
 s0 = Plugin.Window.GetClientRect(hwnd0)
 s1 = Plugin.Window.GetClientRect(hwnd1)
@@ -94,20 +105,7 @@ DX0 = MyArray0(0)
 DY0 = MyArray0(1)
 
 DX1 = MyArray1(0)
-
 DY1 = MyArray1(1)
-
-DX2 = MyArray2(0)
-DY2 = MyArray2(1)
-
-DX3 = MyArray3(0)
-DY3 = MyArray3(1)
-
-DX4 = MyArray4(0)
-DY4 = MyArray4(1)
-
-DXe = MyArraye(0)
-DYe = MyArraye(1)
 // -------------------------
 
 
@@ -119,12 +117,54 @@ End If
 
 //--------End of Test-------------
 
-// ------- Start of Prog----------
+// ------- Start of Prog---------
+
+
+Call EnterPort_LB(TraderID_B)
+Delay 800
+
+Call SupplyMP(hwnd1, 443, 187)
+Delay 3000
+
+//Activate_Skill(hwnd1)
+
+//Call reconnect
+Call Leaving(hwnd1, 458, 229, PorterID_B)
+Delay 4000
+
+Delay 2000
+Call SailOut
+Delay 1500
+TracePrint Cstr(Time) + " Going back to A"
+moveDirection = "A"
+Call Choose_Navi_Path("To_Alc_A")
+Call StartNavi
+
+
+cond = Check_Arrival(DX1, DY1)
+While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
+    cond = Check_Arrival(DX1, DY1)
+    Call CheckOnline_onsea(moveDirection)
+    exist = Check_Windows_Exist(hwnd0)
+    day_num = Int(Plugin.Memory.Read32Bit(hwnd1, Day_add))
+	If day_num > 1 or Check_Windows_Alive(hwnd0) = -1 or exist=0 Then 
+		SendAlert ("It get sucked on sea")
+		Call StopNavi
+		Call Move_Click_v2(hwnd1,782,585)
+		Call Disconnect(hwnd1)
+		
+		Call ExitScript
+	End If
+
+    counter = counter+1
+Wend
+
+Delay 2500
 
 Call EnterPort_LA(TraderID_A)
 Delay 800
 
-Call Leaving(hwnd1, 561, 246, PorterID_A)
+Call Leaving(hwnd1, 653, 245, PorterID_A)
 Delay 4000
 
 TracePrint Cstr(Time) + " Going to B"
@@ -135,7 +175,7 @@ Call Supply(DX1, DY1, hwnd1)
 Delay 1500
 Call SailOut
 Delay 5500
-Call Choose_Navi_Path("To_Fiber_B")
+Call Choose_Navi_Path("To_Alc_B")
 moveDirection = "B"
 Call StartNavi
 Delay 1000
@@ -171,50 +211,6 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 	counter = counter + 1
 	Delay 1000
 Wend
-
-//Activate_Skill(hwnd1)
-
-//Call reconnect
-Call EnterPort_LB(TraderID_B)
-Delay 800
-
-Call SupplyMP(hwnd1, 523, 167)
-Delay 3000
-
-Call Leaving(hwnd1, 528, 228, PorterID_B)
-Delay 4000
-
-Delay 2000
-Call SailOut
-Delay 1500
-TracePrint Cstr(Time) + " Going back to A"
-moveDirection = "A"
-Call Choose_Navi_Path("To_Fiber_A")
-Call StartNavi
-
-
-cond = Check_Arrival(DX1, DY1)
-While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
-    cond = Check_Arrival(DX1, DY1)
-    Call CheckOnline_onsea(moveDirection)
-    exist = Check_Windows_Exist(hwnd0)
-    day_num = Int(Plugin.Memory.Read32Bit(hwnd1, Day_add))
-	If day_num > 1 or Check_Windows_Alive(hwnd0) = -1 or exist=0 Then 
-		SendAlert ("It get sucked on sea")
-		Call StopNavi
-		Call Move_Click_v2(hwnd1,782,585)
-		Call Disconnect(hwnd1)
-		
-		Call ExitScript
-	End If
-
-    counter = counter+1
-Wend
-
-Delay 2500
-
-
-
 
 
 
@@ -276,8 +272,8 @@ Sub EnterPort_LB(TraderID)
     Call OpenMap
     Delay 800
     //Call Move_Click(DX1, DY1, 511, 172) // Click port near trader
-    Call Plugin.Bkgnd.LeftClick(hwnd1, 471, 195)
-    Delay 5600
+    Call Plugin.Bkgnd.LeftClick(hwnd1, 561, 126)
+    Delay 7600
 	
     Call TradingB(DX1, DY1, hwnd1, TraderID)
     MoveTo DX1+ 361, DY1 + 100
@@ -304,6 +300,8 @@ End Sub
 
 Sub TradingA(DX, DY, hwnd, TraderID)
     Call FindTrader(hwnd, TraderID)
+    Delay 1500
+    Call Sell_Extra(hwnd)
     TracePrint "Item bought" 
     Delay 800
     Call BuyCast(DX, DY, hwnd)
@@ -315,8 +313,10 @@ End Sub
 
 Sub TradingB(DX, DY, hwnd, TraderID)
 	Call FindTrader(hwnd1, TraderID)
-	Delay 1500
+	Delay 1000
 	Call Sell_Extra(hwnd)
+	Delay 1500
+	Call Buy_B1 (DX, DY, hwnd)
 	TracePrint "Item sold"
 	Delay 800
 	// Call Plugin.Bkgnd.KeyPress(hwnd, 121) // Cancel Skill
@@ -370,53 +370,97 @@ Sub BuyCast(DX, DY, hwnd)
 
     Delay 2500
 	
-//	Call Move_Click_v2(hwnd, 165, 125)// Buy the 3st target product
+	Call Move_Click_v2(hwnd, 165, 125)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 300
+//	
+    Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 300	
+	
+	
+    // Wheel down
+//    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
+//    Delay 50
+//    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
+//    
+//    Delay 100
+//    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
+//    Delay 50
+//    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
+
+		
+	
+//    Call Move_Click_v2(hwnd, 165, 190)// Buy the 2st target product
 //    Delay 200
 //    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
 //    Delay 200
 //    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
 //    Delay 300
-//	
-//    Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
+//    
+//    Call Move_Click_v2(hwnd, 165, 255)// Buy the 3st target product
+//    Delay 200
+//    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+//    Delay 200
+//    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+//    Delay 300
+//
+//    Call Move_Click_v2(hwnd, 165, 300)// Buy the 4st target product
 //    Delay 200
 //    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
 //    Delay 200
 //    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
 //    Delay 300	
 	
+    Call Plugin.Bkgnd.LeftClick(hwnd, 428, 304)// Bargain
+    Delay 1500
+    Call Plugin.Bkgnd.LeftClick(hwnd, 647, 423)// Confirm	
+    Delay 400
+
+	
+End Sub
+
+Sub Buy_B1(DX, DY, hwnd)
+    Call BringWinOnTop(hwnd)
+    Call Plugin.Bkgnd.LeftClick(hwnd, 640, 357) // Option = Buy
+	' 1st -> 125
+	' 2nd -> 190
+	' 3rd -> 255
+	' 4th -> 300
+
+    Delay 2500
+	
+	Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+    Delay 200
+    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+    Delay 300
+//	
 	
     // Wheel down
-    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
-    Delay 50
-    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
-    
-    Delay 100
-    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
-    Delay 50
-    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
+//    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
+//    Delay 50
+//    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
+//    
+//    Delay 100
+//    Call Plugin.Bkgnd.LeftDown(hwnd, 343, 321)
+//    Delay 50
+//    Call Plugin.Bkgnd.LeftUp(hwnd, 343, 321)
 
-		
-	
-    Call Move_Click_v2(hwnd, 165, 190)// Buy the 2st target product
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-    Delay 300
-    
-    Call Move_Click_v2(hwnd, 165, 255)// Buy the 3st target product
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-    Delay 300
-
-    Call Move_Click_v2(hwnd, 165, 300)// Buy the 4st target product
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-    Delay 300	
+//
+//    Call Move_Click_v2(hwnd, 165, 300)// Buy the 4st target product
+//    Delay 200
+//    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+//    Delay 200
+//    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+//    Delay 300	
 	
     Call Plugin.Bkgnd.LeftClick(hwnd, 428, 304)// Bargain
     Delay 1000
@@ -515,7 +559,7 @@ End Sub
 Sub Sell_Extra(hwnd)
 	// Sell suplus Food
 	Call Plugin.Bkgnd.LeftClick(hwnd, 684, 365)
-	Delay 1500
+	Delay 3000
 	
 //	// Wheel down
 //	rubbish = "C:\Users\RavenCheuk\Desktop\HolyNavi_145c\Pictures\Cannon.bmp"
@@ -706,12 +750,12 @@ Sub CheckOnline_onsea(moveDirection)
 		Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
 		Delay 1000
 		If moveDirection = "A" Then 
-			Call Choose_Navi_Path("To_Fiber_A")
+			Call Choose_Navi_Path("To_Alc_A1")
 			SendAlert ("Reactivate the destination to A")
 			Delay 500
 			Call StartNavi
 		ElseIf moveDirection = "B" Then
-			Call Choose_Navi_Path("To_Fiber_B")
+			Call Choose_Navi_Path("To_Alc_B")
 			SendAlert ("Reactivate the destination to B")
 			Delay 500
 			Call StartNavi
@@ -830,26 +874,20 @@ Sub FindBarEntrance(DX,DY,hwnd)
     	For 10
         	KeyPress 9,1
         	Delay 200
-        	IfColor DX + 636, DY + 330, "ffffff", 0 Then
+        	IfColor DX + 630, DY + 329, "ffffff", 0 Then
 //        		TracePrint "Cond1 Pass"
-            	IfColor DX + 667, DY + 329, "ffffff", 0 Then
+            	IfColor DX + 629, DY + 342, "ffffff", 0 Then
 //            		TracePrint "Cond2 Pass"
-                	IfColor DX + 683, DY + 330, "ffffff", 0 Then
+                	IfColor DX + 655, DY + 328, "ffffff", 0 Then
 //                		TracePrint "Cond3 Pass"
-                    	IfColor DX + 689, DY + 341, "ffffff", 0 Then
+                    	IfColor DX + 657, DY + 342, "ffffff", 0 Then
 //                    		TracePrint "Cond4 Pass"
-                        	IfColor DX + 655, DY + 328, "ffffff", 0 Then
+                        	IfColor DX + 689, DY + 334, "ffffff", 0 Then
 //                        		TracePrint "Cond5 Pass"
-                            	IfColor DX + 646, DY + 339, "ffffff", 0 Then
+                            	IfColor DX + 689, DY + 343, "ffffff", 0 Then
 //                            		TracePrint "Cond6 Pass"
-                                	IfColor DX + 654, DY + 336, "ffffff", 0 Then
-//                                		TracePrint "Cond7 Pass"
-                                    	IfColor DX + 635, DY + 339, "ffffff", 0 Then
-//                                    		TracePrint "Cond8 Pass"
-                                        	Delay 200
-                                        	Goto Found
-                                    	End if 
-                                	End if 
+                                    Delay 200
+                                    Goto Found
                             	End if 
                         	End if 
                     	End if 
@@ -887,7 +925,7 @@ Sub FindBarOwner(DX, DY, hwnd)
     	For 10
         	KeyPress 9,1
         	Delay 200
-        	IfColor DX + 636, DY + 331, "ffffff", 0 Then
+        	IfColor DX + 685, DY + 335, "ffffff", 0 Then
 //        		TracePrint "Cond1 Pass"
             	IfColor DX + 633, DY + 333, "ffffff", 0 Then
 //            		TracePrint "Cond2 Pass"
@@ -900,9 +938,9 @@ Sub FindBarOwner(DX, DY, hwnd)
                             	IfColor DX + 682, DY + 339, "ffffff", 0 Then
 //                            		TracePrint "Cond6 Pass"
                                 	IfColor DX + 666, DY + 339, "ffffff", 0 Then
-//                                		TracePrint "Cond7 Pass"
+  //                              		TracePrint "Cond7 Pass"
                                     	IfColor DX + 638, DY + 339, "ffffff", 0 Then
-//                                    		TracePrint "Cond8 Pass"
+    //                                		TracePrint "Cond8 Pass"
                                         	Delay 200
                                         	Goto Found
                                     	End if 
@@ -949,13 +987,13 @@ Sub ChooseFood(DX, DY, hwnd)
 	Call Move_Click_v2(hwnd1, 190, 186) // Choose Drink 1
 	Delay 500
 	
-	Call Move_Click_v2(hwnd1, 224, 291)//Choose Food 1
+	Call Move_Click_v2(hwnd1, 224, 366)//Choose Food 1
 	Delay 500
 	
-	Call Move_Click_v2(hwnd1, 224, 291)//Choose Food 2
+	Call Move_Click_v2(hwnd1, 224, 366)//Choose Food 2
 	Delay 500
 	
-	Call Move_Click_v2(hwnd1, 224, 291)//Choose Food 3
+	Call Move_Click_v2(hwnd1, 224, 366)//Choose Food 3
 	Delay 500
 	
 	Call Move_Click_v2(hwnd1, 219, 186) //Choose Drink 2
@@ -1011,7 +1049,7 @@ Sub EatinBar(X,Y)
 	Delay 300
 	Call Plugin.Bkgnd.LeftClick(hwnd1, X, Y)
 	
-	Delay 5000
+	Delay 7500
 	
 	Call FindBarEntrance(DX1, DY1, hwnd1)
 	Delay 1500

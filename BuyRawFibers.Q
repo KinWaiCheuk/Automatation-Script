@@ -8,7 +8,7 @@ StopHotkey=123
 StopHotkeyMod=0
 RunOnce=1
 EnableWindow=
-MacroID=7c44ff3a-eefc-4c56-a998-e9aec6d464a7
+MacroID=39dc5c81-07d4-4c22-afba-f3e6e4796e2a
 Description=BuyRawFibers
 Enable=1
 AutoRun=0
@@ -25,12 +25,14 @@ SetupOCXFile=
 [Script]
 // Loading Memory
 Dim DX1, DX2, DX3, DX4, DY1, DY2, DY3, DY4
-hwnd0 = 265318
-hwnd1 = 66368
-hwnd2 = 134600
-hwnd3 = 134628
-hwnd4 = 134644
-ehwnd = 68504
+hwnd0 = 26281974
+hwnd1 = 331064
+hwnd2 = 20909348
+hwnd3 = 69308
+hwnd4 = 69320
+hwnd5 = 28773538
+ehwnd = 134884
+num_players = 5
 
 TraderID_A = 25167875
 PorterID_A = 25167876
@@ -112,15 +114,15 @@ DYe = MyArraye(1)
 
 
 //--------Test-------------------
+Call UPDATE_PLAYER_OL_STATE(OLstatus1_add)
+If Player1_ol_value = 0 Then
+	Call reconnect
+End If
 //--------End of Test-------------
 
 // ------- Start of Prog----------
-Call EnterPort_LB(TraderID_B, 583,159)
-Delay 800
 
 
-Call Leaving(hwnd1, 532, 251, PorterID_B)
-Delay 4000
 
 Call Supply(DX1, DY1, hwnd1)
 Delay 2000
@@ -131,8 +133,6 @@ moveDirection = "A"
 Call Choose_Navi_Path("To_RawFiber_A")
 Call StartNavi
 Activate_Skill(hwnd1)
-//Call reconnect
-
 
 cond = Check_Arrival(DX1, DY1)
 While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1 
@@ -141,7 +141,7 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
     exist = Check_Windows_Exist(hwnd0)
     day_num = Int(Plugin.Memory.Read32Bit(hwnd1, Day_add))
     
-	If day_num > 3 or Check_Windows_Alive(hwnd0) = -1 or exist=0 Then 
+	If day_num > 4 or Check_Windows_Alive(hwnd0) = -1 or exist=0 Then 
 		SendAlert ("It get sucked on sea")
 		Call StopNavi
 		Call Move_Click_v2(hwnd1,782,585)
@@ -159,12 +159,14 @@ Delay 2500
 Call EnterPort_LA(TraderID_A, 470,154)
 Delay 800
 
-
 Call SupplyMP(hwnd1, 440, 158)
 Delay 3000
 
 Call Leaving(hwnd1, 416, 234, PorterID_A)
 Delay 4000
+
+//Call reconnect
+
 
 TracePrint Cstr(Time) + " Going to B"
 
@@ -177,7 +179,7 @@ Call Choose_Navi_Path("To_RawFiber_B")
 moveDirection = "B"
 Call StartNavi
 Delay 1000
-Activate_Skill(hwnd1)
+Activate_Skill (hwnd1)
 
 cond = Check_Arrival(DX1, DY1)
 counter = 0
@@ -187,7 +189,7 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 	Check_Windows_Exist(hwnd0)
 	day_num = Plugin.Memory.Read32Bit(hwnd1, Day_add)
 	
-	If day_num > 3 or Check_Windows_Alive(hwnd0) = - 1  Then 
+	If day_num > 4 or Check_Windows_Alive(hwnd0) = - 1  Then 
 	
 		SendAlert ("It get sucked on sea")
 		Call StopNavi
@@ -210,6 +212,13 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1
 	Delay 1000
 Wend
 
+Call EnterPort_LB(TraderID_B, 583,159)
+Delay 800
+
+
+
+Call Leaving(hwnd1, 532, 251, PorterID_B)
+Delay 4000
 // ---------------End of Prog
 
 
@@ -297,7 +306,7 @@ End Sub
 Sub TradingA(DX, DY, hwnd, TraderID)
     Call FindTrader(hwnd, TraderID)
     TracePrint "Item bought" 
-    Delay 800
+    Delay 1500
     Call BuyCast(DX, DY, hwnd)
     Delay 800
 	
@@ -367,21 +376,21 @@ Sub BuyCast(DX, DY, hwnd)
     Call Bk_WheelDown(hwnd, 343,321, 4)
   	
 	
-    Call Move_Click_v2(hwnd, 165, 125)// Buy the 2st target product
+    Call Move_Click_v2(hwnd, 165, 125)// Buy the 1st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 13)
     Delay 300
     
-    Call Move_Click_v2(hwnd, 165, 190)// Buy the 3st target product
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
-    Delay 200
-    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
-    Delay 300
+//    Call Move_Click_v2(hwnd, 165, 190)// Buy the 2st target product
+//    Delay 200
+//    Call Plugin.Bkgnd.KeyPress(hwnd, 107)
+//    Delay 200
+//    Call Plugin.Bkgnd.KeyPress(hwnd, 13)
+//    Delay 300
 
-    Call Move_Click_v2(hwnd, 165, 225)// Buy the 4st target product
+    Call Move_Click_v2(hwnd, 165, 225)// Buy the 3st target product
     Delay 200
     Call Plugin.Bkgnd.KeyPress(hwnd, 107)
     Delay 200
@@ -396,7 +405,7 @@ Sub BuyCast(DX, DY, hwnd)
     Delay 300	
 	
     Call Plugin.Bkgnd.LeftClick(hwnd, 428, 304)// Bargain
-    Delay 1000
+    Delay 1800
     Call Plugin.Bkgnd.LeftClick(hwnd, 647, 423)// Confirm	
     Delay 400
 

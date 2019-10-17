@@ -24,13 +24,13 @@ SetupOCXFile=
 
 [Script]
 // -----------Parameters
-hwnd0 = 37030992
-hwnd1 = 131956
-hwnd2 = 66430
-hwnd3 = 66460
-hwnd4 = 525202
-hwnd5 = 66566
-ehwnd = 131500
+hwnd0 = 919940
+hwnd1 = 918442
+hwnd2 = 395932
+hwnd3 = 920480
+hwnd4 = 1247944
+hwnd5 = 789478
+ehwnd = 197442
 
 num_players = 5
 
@@ -49,13 +49,19 @@ rebel_state = 4
 fight_state = 64
 
 // Loading memory for food exchange
-Water_add = &H0111FF5A
-Food_add = &H0111FF5C
-ShipHP_add = &H0111FF62
-ShipMaxHP_add = &H011202F0
-MP_add = &H0111FF48
+Water_add = &H01139F8A
+Food_add = &H01139F8C
+ShipHP_add = &H01139F92
+ShipMaxHP_add = &H0113A334
+MP_add = &H01139F78
 Material_add = &H0111FF60
-TeamMember_add = &H0112059C
+TeamMember_add = &H0113A5E8
+OLstatus1_add = &H01139E1C
+state_add = &H01139ED4
+satate_add_2 = &H0111FEA6 // old
+Water_add = &H01139F8A
+Food_add = &H01139F8C
+TargetID_add = &H01134ECC
 
 Dim PlayerID(4)
 PlayerID(0) = 6031955
@@ -74,13 +80,12 @@ PlayerHWND(4) = hwnd5
 
 Dim player_state_value(4)
 
-state_add = &H0111FEA4
-satate_add_2 = &H0111FEA6
-Water_add = &H0111FF5A
-Food_add = &H0111FF5C
-TargetID_add = &H0111AEA4
+
 
 // Test Area
+If Plugin.Memory.Read16Bit(hwnd1, TeamMember_add) < 5 Then 
+	Call reconnect
+End If
 
 // End of Test Area
 
@@ -97,13 +102,17 @@ Next
 
 // Player 1 sail out
 Call SailOut
-Delay 3000
+Delay 5000
 
 // Activating skills
 Call Plugin.Bkgnd.KeyPress(watchdog, 121)
-Delay 1000
+TracePrint "Open M"
+Delay 2000
 Call Plugin.Bkgnd.KeyPress(watchdog, 113)
-
+TracePrint "F2"
+Delay 500
+Call Plugin.Bkgnd.KeyPress(watchdog, 121)
+TracePrint "Close"
 
 cond = Check_Arrival
 loopcounter = 0
@@ -122,17 +131,25 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
     
     
     If Check_Windows_Alive(hwnd0) = - 1  Then 
+   		Call SendAlert("Holy Nav is dead")
     	Call StopNavi
 		Call Move_Click_v2(hwnd1,782,585)
-		Call Disconnect(hwnd1)
-    End If
-    
-    If Plugin.Memory.Read16Bit(hwnd1, TeamMember_add) < 5 Then 
 		Call Disconnect(hwnd1)
 		Call Disconnect(hwnd2)
 		Call Disconnect(hwnd3)
 		Call Disconnect(hwnd4)
 		Call Disconnect(hwnd5)
+		EndScript
+    End If
+    
+    If Plugin.Memory.Read16Bit(hwnd1, TeamMember_add) < 5 Then 
+    	Call SendAlert("One member has disappeared")
+		Call Disconnect(hwnd1)
+		Call Disconnect(hwnd2)
+		Call Disconnect(hwnd3)
+		Call Disconnect(hwnd4)
+		Call Disconnect(hwnd5)
+		EndScript
 	End If
 	
     
@@ -147,7 +164,14 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
 	If loopcounter = 30 or loopcounter = 60 Then 
 		TracePrint "Checking Food"
 		Call Dist_Resources
-		Call Plugin.Bkgnd.KeyPress(hwnd1, 115)
+		If loopcounter = 60 Then 
+			Call Plugin.Bkgnd.KeyPress(watchdog, 121)
+			Delay 500
+			Call Plugin.Bkgnd.KeyPress(hwnd1, 115)
+			Delay 500
+			Call Plugin.Bkgnd.KeyPress(watchdog, 121)			
+		End If
+
 	End If
 	
 	
@@ -175,6 +199,9 @@ While cond(0) = - 1  or cond(1) = - 1  or cond(2) = - 1  or cond(3) = - 1
     TracePrint loopcounter
 Wend
 Call SendAlert("Arrived")
+
+Delay 500
+Call Plugin.Bkgnd.LeftClick(hwnd1, 649, 383) //Click Enter
 
 //--------------------------End of Program----------------------------------
 Function Check_Arrival
@@ -394,10 +421,10 @@ Sub Supply(hwnd, mode)
 	//Call Move_Click_v2(hwnd, 682, 360)// Supply button
 	Call Plugin.Bkgnd.LeftClick(hwnd, 682, 360)
 	
-	Delay 800// Wait for supply meun to pop up	
+	Delay 1200// Wait for supply meun to pop up	
 	
 	If mode = "saved" Then 
-		Call Plugin.Bkgnd.LeftClick(hwnd, 194, 360)// Supply to saved value
+		Call Plugin.Bkgnd.LeftClick(hwnd, 213, 360)// Supply to saved value
 	ElseIf mode = "max" Then 
 		Call Plugin.Bkgnd.LeftClick(hwnd, 308, 363)// Supply to max
 	Else 
@@ -416,11 +443,11 @@ Sub SailOut
 	Call Plugin.Bkgnd.KeyPress(hwnd1, 27)
 	//Call Move_Click_v2(hwnd1, 640, 360)
 	Call Plugin.Bkgnd.LeftClick(hwnd1, 640, 360)
-	Delay 1000
+	Delay 1500
 	
 	//Call Move_Click_v2(hwnd1, 549, 398)
 	Call Plugin.Bkgnd.LeftClick(hwnd1, 549, 398)
-	Delay 500
+	Delay 800
 End Sub
 
 
@@ -508,7 +535,7 @@ Sub TradeWater
     Delay 1000
     Call Plugin.Bkgnd.LeftClick(PlayerHWND(WATER_MAX(1)), 647, 410)// Invite Trade
     Delay 1000
-    Call Plugin.Bkgnd.LeftClick(PlayerHWND(WATER_MIN(1)), 520, 21)// Accept Trade
+    Call Plugin.Bkgnd.LeftClick(PlayerHWND(WATER_MIN(1)), 467, 21)// Accept Trade
     Call Plugin.Bkgnd.KeyPress(PlayerHWND(WATER_MIN(1)), 13)
 	
     Delay 1000
@@ -533,7 +560,7 @@ Sub TradeFood
     Delay 1000
     Call Plugin.Bkgnd.LeftClick(PlayerHWND(FOOD_MAX(1)), 647, 410)// Invite Trade
     Delay 1000
-    Call Plugin.Bkgnd.LeftClick(PlayerHWND(FOOD_MIN(1)), 520, 21)// Accept Trade
+    Call Plugin.Bkgnd.LeftClick(PlayerHWND(FOOD_MIN(1)), 467, 21)// Accept Trade
     Call Plugin.Bkgnd.KeyPress(PlayerHWND(FOOD_MIN(1)), 13)
 	
     Delay 1000
@@ -592,7 +619,10 @@ Sub Dist_Resources
 	WATER_MIN = MIN(WATER)
 	FOOD_MAX = MAX(FOOD)
 	FOOD_MIN = MIN(FOOD)
-	
+	TracePrint WATER_MAX(0)
+	TracePrint FOOD_MAX(0)
+	TracePrint WATER_MAX(0)
+	TracePrint FOOD_MAX(0)
 	If FOOD_MAX(0) > 80 Then
     	If FOOD_MIN(0) < 20 Then 
         	Call Dist_FOOD
@@ -685,7 +715,7 @@ Sub CheckOnline_onsea
 End Sub
 
 Sub SendAlert(str)
-	//BringWinOnTop (ehwnd)
+	//BringWinOnTop (	)
 	//Call Move_Click(DXe, DYe, 74, 222)// Create a new email
 	Call Plugin.Bkgnd.LeftClick(ehwnd, 455, 884)
 	Delay 500
